@@ -35,3 +35,22 @@ Foe: 1
 5. ~~Mega Beedrill~~, KO'd by *Mega Rayquaza*
 6. ~~Mega Gardevoir~~, KO'd by *Mega Rayquaza*
 7. ~~Mega Blaziken~~, KO'd by *Mega Rayquaza*
+
+__Battle 3 (vs AI)__
+Me: 7
+1. Dialga **2 wins**
+2. ~~Mega Rayquaza~~ **1 win**, KO'd by *Mega Salamence*
+3. ~~Calyrex Shadow Rider~~ **2 wins**, KO'd by *Giratina Origin*
+4. Magearna **1 win**
+5. Palafin Hero **1 win**
+6. 
+7. 
+
+You: 2
+1. ~~Dialga~~, KO'd by *Dialga*
+2. ~~Mega Rayquaza~~, KO'd by *Mega Rayquaza*
+3. ~~Mega Metagross~~, KO'd by *Calyrex Shadow Rider*
+4. ~~Mega Blaziken~~, KO'd by *Calyrex Shadow Rider*
+5. ~~Mega Salamence~~ **1 win**, KO'd by *Dialga*
+6. ~~Giratina Origin~~ **1 win**, KO'd by *Magearna*
+7. ~~Mega Charizard X~~, KO'd by *Mega Charizard X*
