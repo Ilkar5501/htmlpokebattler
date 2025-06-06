@@ -34,6 +34,7 @@
     <select id="move-select">
       <option value="" disabled selected>— choose mon first —</option>
     </select>
+        <button id="use-move-btn" style="display:none;">Use Move</button>
   </div>
 
   <div class="pokemon-container">
@@ -109,8 +110,7 @@
             "Judgment": { type: "Normal", basePower: 100, accuracy: 100 },
             "Precipice Blades": { type: "Ground", basePower: 120, accuracy: 85 },
             "Stone Edge": { type: "Rock", basePower: 100, accuracy: 80 },
-            "Fire Punch": { type: "Fire", basePower: 75, accuracy: 100 },
-            "Thunder Punch": { type: "Electric", basePower: 75, accuracy: 100 },
+            "Eruption": { type: "Fire", basePower: 150, accuracy: 100 },
             "Outrage": { type: "Dragon", basePower: 120, accuracy: 100 },
             "Extreme Speed": { type: "Normal", basePower: 80, accuracy: 100 },
             "Crunch": { type: "Dark", basePower: 80, accuracy: 100 },
@@ -169,11 +169,11 @@
         };
 
         const pokemonMoves = {
-            "Dialga": ["Roar of Time", "Earth Power", "Flash Cannon", "Aura Sphere", "Power Gem"],
+            "Dialga": ["Roar of Time", "Earth Power", "Flash Cannon", "Aura Sphere"],
             "Primal Kyogre": ["Water Spout", "Grass Knot", "Ice Beam", "Body Slam"],
-            "Mega Mewtwo Y": ["Future Sight", "Ancient Power", "Psychic"],
+            "Mega Mewtwo Y": ["Future Sight", "Ancient Power", "Psychic", "Aura Sphere"],
             "Arceus": ["Hyper Beam", "Future Sight", "Earth Power", "Judgment"],
-            "Primal Groudon": ["Precipice Blades", "Stone Edge", "Fire Punch", "Thunder Punch"],
+            "Primal Groudon": ["Precipice Blades", "Stone Edge", "Eruption", "Hammer Arm"],
             "Mega Rayquaza": ["Outrage", "Extreme Speed", "Crunch", "Dragon Ascent"],
             "Xerneas": ["Play Rough", "Close Combat", "Giga Impact", "Megahorn"],
             "Yveltal": ["Sky Attack", "Dragon Rush", "Focus Blast", "Foul Play"],
@@ -295,140 +295,167 @@
             "Mega Swampert": "https://img.pokemondb.net/artwork/large/swampert-mega.jpg"
         };
 
-    /* ====================================================================== */
+const pokemonList = Object.keys(pokemonStats);
 
-    const pokemonList = Object.keys(pokemonStats);
+/* ----------  DOM helpers  ---------- */
+const $ = id => document.getElementById(id);
+const log = m => { $("battle-log").innerHTML += `<p>${m}</p>`; $("battle-log").scrollTop = $("battle-log").scrollHeight; };
+const updateHP = (side, cur, max) => {
+  const pct = Math.floor(cur / max * 100);
+  $(side === "user" ? "user-hp-bar" : "opponent-hp-bar").textContent =
+    `HP: ${cur}/${max} (${pct}%)`;
+};
 
-    /* ---- populate dropdowns on load ---- */
-    window.onload = () => {
-      const userSel = document.getElementById("user-select");
-      const oppSel  = document.getElementById("opponent-select");
+/* ----------  set‑up dropdowns on page load  ---------- */
+window.onload = () => {
+  pokemonList.forEach(p => {
+    ["user-select", "opponent-select"].forEach(id => {
+      const o = document.createElement("option");
+      o.value = p; o.textContent = p;
+      $(id).appendChild(o);
+    });
+  });
+  $("user-select").addEventListener("change", e => populateMoveDropdown(e.target.value));
+};
+function populateMoveDropdown(mon) {
+  const sel = $("move-select"); sel.innerHTML = "";
+  pokemonMoves[mon].forEach(m => {
+    const o = document.createElement("option"); o.value = o.textContent = m; sel.appendChild(o);
+  });
+}
 
-      pokemonList.forEach(name=>{
-        const op1=document.createElement("option");
-        op1.value=name; op1.textContent=name;
-        userSel.appendChild(op1);
+/* ----------  global battle state  ---------- */
+let userMon, foeMon, userHP, foeHP, userSpd, foeSpd;
 
-        const op2=op1.cloneNode(true);
-        oppSel.appendChild(op2);
-      });
+/* ----------  sprite / bar loading  ---------- */
+function loadSelection() {
+  userMon = $("user-select").value;
+  foeMon  = $("opponent-select").value || pokemonList[Math.random()*pokemonList.length|0];
+  if (!userMon) { alert("Choose your Pokémon first."); return; }
 
-      userSel.addEventListener("change",()=>populateMoveDropdown(userSel.value));
-    };
+  ["user","opponent"].forEach(side => {
+    const mon = side==="user" ? userMon : foeMon;
+    $(`${side}-pokemon-name`).textContent = mon;
+    $(`${side}-pokemon-image`).src = pokemonImages[mon];
+    $(`${side}-pokemon-image`).style.display = "block";
+  });
 
-    function populateMoveDropdown(pokeName){
-      const moveSel=document.getElementById("move-select");
-      moveSel.innerHTML="";
-      pokemonMoves[pokeName].forEach(mn=>{
-        const op=document.createElement("option");
-        op.value=mn; op.textContent=mn;
-        moveSel.appendChild(op);
-      });
-      moveSel.selectedIndex=0;
+  userHP = pokemonStats[userMon][0];
+  foeHP  = pokemonStats[foeMon ][0];
+  updateHP("user", userHP, userHP);
+  updateHP("opponent", foeHP, foeHP);
+
+  populateMoveDropdown(userMon);
+}
+
+/* ----------  start battle  ---------- */
+function startBattle() {
+  if (!userMon || !foeMon) { alert("Click ‘Load Sprites’ first."); return; }
+  if (!$("move-select").value) { alert("Choose your move."); return; }
+
+  $("battle-log").innerHTML = "";
+  userSpd = pokemonStats[userMon][5];
+  foeSpd  = pokemonStats[foeMon ][5];
+
+  $("user-select").disabled = $("opponent-select").disabled = true;
+  turnLoop();                    // jump into first round
+}
+
+/* ----------  round‑by‑round loop (async via buttons) ---------- */
+function turnLoop() {
+  // decide who leads this round
+  let userLeads = userSpd === foeSpd ? Math.random() < 0.5 : userSpd > foeSpd;
+
+  // show “Use Move” button & enable dropdown BEFORE user’s action
+  $("move-select").disabled = false;
+  $("use-move-btn").style.display = "inline-block";
+
+  $("use-move-btn").onclick = () => {
+    $("move-select").disabled = true;
+    $("use-move-btn").style.display = "none";
+
+    const userMove = $("move-select").value;
+
+    // attacker 1
+    if (userLeads) {
+      foeHP = doAttack(userMon, foeMon, foeHP, userMove);
+      updateHP("opponent", foeHP, pokemonStats[foeMon][0]);
+      if (foeHP <= 0) { log(`${foeMon} fainted! You win!`); return; }
+
+      const foeMove = chooseBestMove(foeMon, userMon);
+      userHP = doAttack(foeMon, userMon, userHP, foeMove);
+      updateHP("user", userHP, pokemonStats[userMon][0]);
+      if (userHP <= 0) { log(`${userMon} fainted! Opponent wins.`); return; }
+
+    } else {
+      const foeMove = chooseBestMove(foeMon, userMon);
+      userHP = doAttack(foeMon, userMon, userHP, foeMove);
+      updateHP("user", userHP, pokemonStats[userMon][0]);
+      if (userHP <= 0) { log(`${userMon} fainted! Opponent wins.`); return; }
+
+      foeHP = doAttack(userMon, foeMon, foeHP, userMove);
+      updateHP("opponent", foeHP, pokemonStats[foeMon][0]);
+      if (foeHP <= 0) { log(`${foeMon} fainted! You win!`); return; }
     }
 
-    /* ---- load sprites / HP once picks are ready ---- */
-    function loadSelection(){
-      const userP=document.getElementById("user-select").value;
-      let oppP = document.getElementById("opponent-select").value;
-      if(!userP){ alert("Pick your Pokémon first."); return; }
-      if(!oppP)  oppP = pokemonList[Math.floor(Math.random()*pokemonList.length)];
+    // next round
+    setTimeout(turnLoop, 400);
+  };
+}
 
-      // store selections
-      window.selectedUserPokemon     = userP;
-      window.selectedOpponentPokemon = oppP;
+/* ----------  AI: pick move with highest Expected Damage ---------- */
+function chooseBestMove(attacker, defender) {
+  let best = null, bestVal = -1;
+  pokemonMoves[attacker].forEach(mvName => {
+    const val = expectedDamage(attacker, defender, mvName) * (moves[mvName].accuracy / 100);
+    if (val > bestVal) { bestVal = val; best = mvName; }
+  });
+  return best;
+}
 
-      // sprites & HP bars
-      document.getElementById("user-pokemon-name").textContent=userP;
-      document.getElementById("user-pokemon-image").src=pokemonImages[userP];
-      document.getElementById("user-pokemon-image").style.display="block";
+/* ----------  damage helpers ---------- */
+const physicalMoves = new Set([
+  "Body Slam","Hyper Beam","Roar of Time","Earthquake","Stone Edge","Ice Punch",
+  "Hammer Arm","Close Combat","Crunch","Play Rough","Giga Impact","Outrage",
+  "Extreme Speed","Dragon Rush","Brave Bird","Sky Attack","Aeroblast","Sacred Fire",
+  "Iron Head","Zen Headbutt","Knock Off","Behemoth Bash","Behemoth Blade",
+  "Dragon Ascent","Wild Charge","Fusion Bolt","Dragon Pulse"
+]);
 
-      document.getElementById("opponent-pokemon-name").textContent=oppP;
-      document.getElementById("opponent-pokemon-image").src=pokemonImages[oppP];
-      document.getElementById("opponent-pokemon-image").style.display="block";
+function expectedDamage(attacker, defender, mvName) {
+  const mv = moves[mvName];
+  const atk = physicalMoves.has(mvName)
+    ? pokemonStats[attacker][1]
+    : pokemonStats[attacker][3];
+  const def = physicalMoves.has(mvName)
+    ? pokemonStats[defender][2]
+    : pokemonStats[defender][4];
+  const stab = pokemonTypes[attacker].includes(mv.type) ? 1.5 : 1;
 
-      const uhp=pokemonStats[userP][0], ohp=pokemonStats[oppP][0];
-      document.getElementById("user-hp-bar").textContent=`HP: ${uhp}/${uhp} (100%)`;
-      document.getElementById("opponent-hp-bar").textContent=`HP: ${ohp}/${ohp} (100%)`;
 
-      // default move dropdown (if not already populated)
-      if(document.getElementById("move-select").options.length===0)
-        populateMoveDropdown(userP);
-    }
+  const row = typeChart[mv.type] || {};
+  const eff = pokemonTypes[defender].reduce((m, t) => {
+    const val = row[t] !== undefined ? row[t] : 1;
+    return m * val;
+  }, 1);
 
-    /* ---- start battle ---- */
-    function startBattle(){
-      const userP=window.selectedUserPokemon;
-      const oppP =window.selectedOpponentPokemon;
-      const moveSel=document.getElementById("move-select").value;
+  return Math.floor(
+    (((2 * 100 / 5 + 2) * mv.basePower * (atk / def)) / 50 + 2) *
+      stab *
+      eff
+  );
+}
 
-      if(!userP||!oppP){ alert("Click ‘Load Sprites’ first."); return; }
-      if(!moveSel){ alert("Choose your move."); return; }
+function doAttack(attacker, defender, defHP, mvName) {
+  const mv = moves[mvName];
+  if (Math.random()*100 > mv.accuracy) { log(`${attacker}ʼs ${mvName} missed!`); return defHP; }
 
-      document.getElementById("battle-log").innerHTML="";
-      runBattle(userP,oppP,moveSel);
-    }
-
-    /* ---- core battle loop ---- */
-    function runBattle(userP,oppP,userMove){
-      let uHP = pokemonStats[userP][0];
-      let oHP = pokemonStats[oppP][0];
-      const uSpd=pokemonStats[userP][5], oSpd=pokemonStats[oppP][5];
-
-      let userTurn = uSpd>oSpd || (uSpd===oSpd && Math.random()<0.5);
-
-      while(uHP>0 && oHP>0){
-        if(userTurn){
-          oHP = doAttack(userP,oppP,oHP,userMove);  updateHP("opponent",oHP,pokemonStats[oppP][0]);
-          if(oHP<=0) break;
-          uHP = doAttack(oppP,userP,uHP);            updateHP("user",uHP,pokemonStats[userP][0]);
-        }else{
-          uHP = doAttack(oppP,userP,uHP);            updateHP("user",uHP,pokemonStats[userP][0]);
-          if(uHP<=0) break;
-          oHP = doAttack(userP,oppP,oHP,userMove);   updateHP("opponent",oHP,pokemonStats[oppP][0]);
-        }
-        userTurn = !userTurn;         // alternate lead each round
-      }
-      log(`${uHP>0?userP:oppP} wins!`);
-    }
-
-    /* ---- perform one attack ---- */
-    function doAttack(attacker,defender,defHP,forcedMove){
-      const moveName = forcedMove || pokemonMoves[attacker][Math.floor(Math.random()*pokemonMoves[attacker].length)];
-      const mv = moves[moveName];
-
-      if(Math.random()*100 > mv.accuracy){ log(`${attacker}'s ${moveName} missed!`); return defHP; }
-
-      const phys = ["Body Slam","Hyper Beam","Roar of Time","Earthquake","Stone Edge","Ice Punch",
-                    "Hammer Arm","Close Combat","Crunch","Play Rough","Giga Impact","Outrage",
-                    "Extreme Speed","Dragon Rush","Brave Bird","Sky Attack","Aeroblast","Sacred Fire",
-                    "Iron Head","Zen Headbutt","Knock Off","Behemoth Bash","Behemoth Blade",
-                    "Dragon Ascent","Wild Charge","Fusion Bolt","Dragon Pulse"].includes(moveName);
-
-      const atk = phys ? pokemonStats[attacker][1] : pokemonStats[attacker][3];
-      const def = phys ? pokemonStats[defender ][2] : pokemonStats[defender ][4];
-
-      const stab = pokemonTypes[attacker].includes(mv.type)?1.5:1;
-      const eff  = pokemonTypes[defender].reduce((m,t)=>m*(typeChart[mv.type]?.[t]||1),1);
-      const rand = Math.random()*0.15+0.85;
-      let dmg=Math.floor(((((2*100/5+2)*mv.basePower*(atk/def))/50)+2)*stab*eff*rand);
-      if(eff>0 && dmg<1) dmg=1; if(eff===0) dmg=0;
-
-      defHP-=dmg;
-      log(`${attacker} used ${moveName}! It dealt ${dmg} damage.`);
-      return Math.max(0,defHP);
-    }
-
-    /* ---- helpers ---- */
-    function updateHP(side,cur,max){
-      const pct=Math.floor(cur/max*100);
-      document.getElementById(side==="user"?"user-hp-bar":"opponent-hp-bar")
-              .textContent=`HP: ${cur}/${max} (${pct}%)`;
-    }
-    function log(msg){
-      const div=document.getElementById("battle-log");
-      div.innerHTML+=`<p>${msg}</p>`; div.scrollTop=div.scrollHeight;
-    }
-  </script>
-</body>
-</html>
+  const base = expectedDamage(attacker, defender, mvName);
+  const rand = Math.random()*0.15+0.85;
+  let dmg = Math.floor(base * rand);
+  if (dmg < 1 && base > 0) dmg = 1;     // at least 1 if not immune
+  defHP -= dmg;
+  log(`${attacker} used ${mvName}! It dealt ${dmg} damage.`);
+  return Math.max(0, defHP);
+}
+</script>
