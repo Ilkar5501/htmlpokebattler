@@ -1,65 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Battle Engine</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .pokemon-container {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px;
-        }
-        .pokemon {
-            text-align: center;
-        }
-        .hp-bar {
-            margin: 10px 0;
-        }
-        .move-buttons {
-            margin: 20px;
-        }
-        .battle-log {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            height: 150px;
-            overflow-y: auto;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pokémon Battle Engine</title>
+  <style>
+    body            { font-family: Arial, sans-serif; background:#f4f4f4; text-align:center; }
+    .pokemon-container { display:flex; justify-content:space-around; margin:20px; }
+    .pokemon        { text-align:center; }
+    .hp-bar         { margin:10px 0; }
+    .selectors      { margin:20px; }
+    .selectors select { padding:6px; margin:0 10px; }
+    .battle-log     { margin:20px; padding:10px; border:1px solid #ccc; background:#fff; height:150px; overflow-y:auto; }
+    button          { padding:8px 16px; margin:10px; }
+  </style>
 </head>
 <body>
-    <h1>Pokémon Battle Engine</h1>
-    <div class="pokemon-container">
-        <div class="pokemon" id="user-pokemon">
-            <h2 id="user-pokemon-name">User Pokémon</h2>
-            <img id="user-pokemon-image" src="" alt="User Pokémon" width="150">
-            <div class="hp-bar" id="user-hp-bar">HP: 0/0 (0%)</div>
-        </div>
-        <div class="pokemon" id="opponent-pokemon">
-            <h2 id="opponent-pokemon-name">Opponent Pokémon</h2>
-            <img id="opponent-pokemon-image" src="" alt="Opponent Pokémon" width="150">
-            <div class="hp-bar" id="opponent-hp-bar">HP: 0/0 (0%)</div>
-        </div>
+  <h1>Pokémon Battle Engine</h1>
+
+  <!-- ▼ Pokémon & move selection UI ▼ -->
+  <div class="selectors">
+    <label for="user-select">Your Pokémon:</label>
+    <select id="user-select">
+      <option value="" disabled selected>— choose —</option>
+    </select>
+
+    <label for="opponent-select">Opponent:</label>
+    <select id="opponent-select">
+      <option value="" disabled selected>— random —</option>
+    </select>
+
+    <label for="move-select" style="margin-left:30px;">Your Move:</label>
+    <select id="move-select">
+      <option value="" disabled selected>— choose mon first —</option>
+    </select>
+  </div>
+
+  <div class="pokemon-container">
+    <div class="pokemon" id="user-pokemon">
+      <h2 id="user-pokemon-name">User Pokémon</h2>
+      <img id="user-pokemon-image" src="" alt="User Pokémon" width="150" style="display:none;"/>
+      <div class="hp-bar" id="user-hp-bar">HP: 0/0&nbsp;(0%)</div>
     </div>
-    <div class="action-buttons">
-        <button onclick="selectPokemon()">Select Pokémon</button>
-        <button onclick="startBattle()">Start Battle</button>
+    <div class="pokemon" id="opponent-pokemon">
+      <h2 id="opponent-pokemon-name">Opponent Pokémon</h2>
+      <img id="opponent-pokemon-image" src="" alt="Opponent Pokémon" width="150" style="display:none;"/>
+      <div class="hp-bar" id="opponent-hp-bar">HP: 0/0&nbsp;(0%)</div>
     </div>
-    <div class="move-buttons" id="move-buttons">
-        <!-- Move buttons will be dynamically added here -->
-    </div>
-    <div class="battle-log" id="battle-log">
-        <!-- Battle updates will appear here -->
-    </div>
-    <script>
-        // Pokémon stats, moves, types, and type effectiveness
+  </div>
+
+  <button onclick="loadSelection()">Load Sprites</button>
+  <button onclick="startBattle()">Start Battle</button>
+
+  <div class="battle-log" id="battle-log"></div>
+
+  <script>
+    /* === CONST BLOCKS — FILL WITH FULL DATA YOURSELF ====================== */
+    // Pokémon stats, moves, types, and type effectiveness
         const pokemonStats = {
             "Dialga": [404, 339, 339, 399, 299, 279],
             "Primal Kyogre": [404, 399, 279, 459, 419, 279],
@@ -298,116 +295,140 @@
             "Mega Swampert": "https://img.pokemondb.net/artwork/large/swampert-mega.jpg"
         };
 
-        const pokemonList = Object.keys(pokemonStats);
+    /* ====================================================================== */
 
-        function selectPokemon() {
-            // Randomly select Pokémon for user and opponent
-            const userPokemon = pokemonList[Math.floor(Math.random() * pokemonList.length)];
-            const opponentPokemon = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+    const pokemonList = Object.keys(pokemonStats);
 
-            // Update Pokémon names and images
-            document.getElementById("user-pokemon-name").innerText = userPokemon;
-            document.getElementById("user-pokemon-image").src = pokemonImages[userPokemon];
-            document.getElementById("user-pokemon-image").style.display = "block";
+    /* ---- populate dropdowns on load ---- */
+    window.onload = () => {
+      const userSel = document.getElementById("user-select");
+      const oppSel  = document.getElementById("opponent-select");
 
-            document.getElementById("opponent-pokemon-name").innerText = opponentPokemon;
-            document.getElementById("opponent-pokemon-image").src = pokemonImages[opponentPokemon];
-            document.getElementById("opponent-pokemon-image").style.display = "block";
+      pokemonList.forEach(name=>{
+        const op1=document.createElement("option");
+        op1.value=name; op1.textContent=name;
+        userSel.appendChild(op1);
 
-            // Initialize HP bars
-            const userHP = pokemonStats[userPokemon][0];
-            const opponentHP = pokemonStats[opponentPokemon][0];
-            document.getElementById("user-hp-bar").innerText = `HP: ${userHP}/${userHP} (100%)`;
-            document.getElementById("opponent-hp-bar").innerText = `HP: ${opponentHP}/${opponentHP} (100%)`;
+        const op2=op1.cloneNode(true);
+        oppSel.appendChild(op2);
+      });
 
-            // Store selected Pokémon for the battle
-            window.selectedUserPokemon = userPokemon;
-            window.selectedOpponentPokemon = opponentPokemon;
-        }
+      userSel.addEventListener("change",()=>populateMoveDropdown(userSel.value));
+    };
 
-            function startBattle() {
-        if (!window.selectedUserPokemon || !window.selectedOpponentPokemon) {
-            alert("Please select Pokémon first!");
-            return;
-        }
-
-            // Start the battle
-            const userPokemon = window.selectedUserPokemon;
-            const opponentPokemon = window.selectedOpponentPokemon;
-            startBattleLogic(userPokemon, opponentPokemon);
-        }
-
-        // Battle engine logic
-        function startBattle(userPokemon, opponentPokemon) {
-        // Set Pokémon images
-        document.getElementById("user-pokemon-image").src = pokemonImages[userPokemon];
-        document.getElementById("user-pokemon-image").style.display = "block";
-        document.getElementById("opponent-pokemon-image").src = pokemonImages[opponentPokemon];
-        document.getElementById("opponent-pokemon-image").style.display = "block";
-
-        // Initialize stats, moves, and HP
-        let userHP = pokemonStats[userPokemon][0];
-        let opponentHP = pokemonStats[opponentPokemon][0];
-        const userSpeed = pokemonStats[userPokemon][5];
-        const opponentSpeed = pokemonStats[opponentPokemon][5];
-
-        // Determine attack order
-        let userGoesFirst = userSpeed > opponentSpeed || (userSpeed === opponentSpeed && Math.random() < 0.5);
-
-        // Battle loop
-        while (userHP > 0 && opponentHP > 0) {
-            if (userGoesFirst) {
-                // User attacks
-                opponentHP = attack(userPokemon, opponentPokemon, opponentHP);
-                if (opponentHP <= 0) break;
-            } else {
-                // Opponent attacks
-                userHP = attack(opponentPokemon, userPokemon, userHP);
-                if (userHP <= 0) break;
-            }
-            userGoesFirst = !userGoesFirst; // Alternate turns
-        }
-
-        // Determine winner
-        if (userHP > 0) {
-            logBattle(`${userPokemon} wins!`);
-        } else {
-            logBattle(`${opponentPokemon} wins!`);
-        }
+    function populateMoveDropdown(pokeName){
+      const moveSel=document.getElementById("move-select");
+      moveSel.innerHTML="";
+      pokemonMoves[pokeName].forEach(mn=>{
+        const op=document.createElement("option");
+        op.value=mn; op.textContent=mn;
+        moveSel.appendChild(op);
+      });
+      moveSel.selectedIndex=0;
     }
 
-        function attack(attacker, defender, defenderHP) {
-            // Select a move
-            const move = pokemonMoves[attacker][Math.floor(Math.random() * pokemonMoves[attacker].length)];
-            const moveData = moves[move];
+    /* ---- load sprites / HP once picks are ready ---- */
+    function loadSelection(){
+      const userP=document.getElementById("user-select").value;
+      let oppP = document.getElementById("opponent-select").value;
+      if(!userP){ alert("Pick your Pokémon first."); return; }
+      if(!oppP)  oppP = pokemonList[Math.floor(Math.random()*pokemonList.length)];
 
-            // Accuracy check
-            if (Math.random() * 100 > moveData.accuracy) {
-                logBattle(`${attacker}'s ${move} missed!`);
-                return defenderHP;
-            }
+      // store selections
+      window.selectedUserPokemon     = userP;
+      window.selectedOpponentPokemon = oppP;
 
-            // Calculate damage
-            const attackStat = moveData.type === "Physical" ? pokemonStats[attacker][1] : pokemonStats[attacker][3];
-            const defenseStat = moveData.type === "Physical" ? pokemonStats[defender][2] : pokemonStats[defender][4];
-            const stab = pokemonTypes[attacker].includes(moveData.type) ? 1.5 : 1;
-            const typeEffectiveness = pokemonTypes[defender].reduce((multiplier, type) => {
-                return multiplier * (typeChart[moveData.type][type] || 1);
-            }, 1);
-            const randomFactor = Math.random() * 0.15 + 0.85;
-            const damage = Math.floor((((2 * 100 / 5 + 2) * moveData.basePower * (attackStat / defenseStat)) / 50 + 2) * stab * typeEffectiveness * randomFactor);
+      // sprites & HP bars
+      document.getElementById("user-pokemon-name").textContent=userP;
+      document.getElementById("user-pokemon-image").src=pokemonImages[userP];
+      document.getElementById("user-pokemon-image").style.display="block";
 
-            // Apply damage
-            defenderHP -= damage;
-            logBattle(`${attacker} used ${move}! It dealt ${damage} damage.`);
-            return Math.max(0, defenderHP);
+      document.getElementById("opponent-pokemon-name").textContent=oppP;
+      document.getElementById("opponent-pokemon-image").src=pokemonImages[oppP];
+      document.getElementById("opponent-pokemon-image").style.display="block";
+
+      const uhp=pokemonStats[userP][0], ohp=pokemonStats[oppP][0];
+      document.getElementById("user-hp-bar").textContent=`HP: ${uhp}/${uhp} (100%)`;
+      document.getElementById("opponent-hp-bar").textContent=`HP: ${ohp}/${ohp} (100%)`;
+
+      // default move dropdown (if not already populated)
+      if(document.getElementById("move-select").options.length===0)
+        populateMoveDropdown(userP);
+    }
+
+    /* ---- start battle ---- */
+    function startBattle(){
+      const userP=window.selectedUserPokemon;
+      const oppP =window.selectedOpponentPokemon;
+      const moveSel=document.getElementById("move-select").value;
+
+      if(!userP||!oppP){ alert("Click ‘Load Sprites’ first."); return; }
+      if(!moveSel){ alert("Choose your move."); return; }
+
+      document.getElementById("battle-log").innerHTML="";
+      runBattle(userP,oppP,moveSel);
+    }
+
+    /* ---- core battle loop ---- */
+    function runBattle(userP,oppP,userMove){
+      let uHP = pokemonStats[userP][0];
+      let oHP = pokemonStats[oppP][0];
+      const uSpd=pokemonStats[userP][5], oSpd=pokemonStats[oppP][5];
+
+      let userTurn = uSpd>oSpd || (uSpd===oSpd && Math.random()<0.5);
+
+      while(uHP>0 && oHP>0){
+        if(userTurn){
+          oHP = doAttack(userP,oppP,oHP,userMove);  updateHP("opponent",oHP,pokemonStats[oppP][0]);
+          if(oHP<=0) break;
+          uHP = doAttack(oppP,userP,uHP);            updateHP("user",uHP,pokemonStats[userP][0]);
+        }else{
+          uHP = doAttack(oppP,userP,uHP);            updateHP("user",uHP,pokemonStats[userP][0]);
+          if(uHP<=0) break;
+          oHP = doAttack(userP,oppP,oHP,userMove);   updateHP("opponent",oHP,pokemonStats[oppP][0]);
         }
+        userTurn = !userTurn;         // alternate lead each round
+      }
+      log(`${uHP>0?userP:oppP} wins!`);
+    }
 
-        function logBattle(message) {
-            const log = document.getElementById("battle-log");
-            log.innerHTML += `<p>${message}</p>`;
-            log.scrollTop = log.scrollHeight;
-        }
-    </script>
+    /* ---- perform one attack ---- */
+    function doAttack(attacker,defender,defHP,forcedMove){
+      const moveName = forcedMove || pokemonMoves[attacker][Math.floor(Math.random()*pokemonMoves[attacker].length)];
+      const mv = moves[moveName];
+
+      if(Math.random()*100 > mv.accuracy){ log(`${attacker}'s ${moveName} missed!`); return defHP; }
+
+      const phys = ["Body Slam","Hyper Beam","Roar of Time","Earthquake","Stone Edge","Ice Punch",
+                    "Hammer Arm","Close Combat","Crunch","Play Rough","Giga Impact","Outrage",
+                    "Extreme Speed","Dragon Rush","Brave Bird","Sky Attack","Aeroblast","Sacred Fire",
+                    "Iron Head","Zen Headbutt","Knock Off","Behemoth Bash","Behemoth Blade",
+                    "Dragon Ascent","Wild Charge","Fusion Bolt","Dragon Pulse"].includes(moveName);
+
+      const atk = phys ? pokemonStats[attacker][1] : pokemonStats[attacker][3];
+      const def = phys ? pokemonStats[defender ][2] : pokemonStats[defender ][4];
+
+      const stab = pokemonTypes[attacker].includes(mv.type)?1.5:1;
+      const eff  = pokemonTypes[defender].reduce((m,t)=>m*(typeChart[mv.type]?.[t]||1),1);
+      const rand = Math.random()*0.15+0.85;
+      let dmg=Math.floor(((((2*100/5+2)*mv.basePower*(atk/def))/50)+2)*stab*eff*rand);
+      if(eff>0 && dmg<1) dmg=1; if(eff===0) dmg=0;
+
+      defHP-=dmg;
+      log(`${attacker} used ${moveName}! It dealt ${dmg} damage.`);
+      return Math.max(0,defHP);
+    }
+
+    /* ---- helpers ---- */
+    function updateHP(side,cur,max){
+      const pct=Math.floor(cur/max*100);
+      document.getElementById(side==="user"?"user-hp-bar":"opponent-hp-bar")
+              .textContent=`HP: ${cur}/${max} (${pct}%)`;
+    }
+    function log(msg){
+      const div=document.getElementById("battle-log");
+      div.innerHTML+=`<p>${msg}</p>`; div.scrollTop=div.scrollHeight;
+    }
+  </script>
 </body>
 </html>
