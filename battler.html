@@ -5,430 +5,515 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pokémon Battle Engine</title>
   <style>
-    body            { font-family: Arial, sans-serif; background:#f4f4f4; text-align:center; }
-    .pokemon-container { display:flex; justify-content:space-around; margin:20px; }
-    .pokemon        { text-align:center; }
-    .hp-bar         { margin:10px 0; }
-    .selectors      { margin:20px; }
-    .selectors select { padding:6px; margin:0 10px; }
-    .battle-log     { margin:20px; padding:10px; border:1px solid #ccc; background:#fff; height:150px; overflow-y:auto; }
-    button          { padding:8px 16px; margin:10px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    
+    .game-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 900px;
+      width: 100%;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #764ba2;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .setup-phase {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .setup-phase select {
+      padding: 10px 20px;
+      margin: 0 10px;
+      border: 2px solid #667eea;
+      border-radius: 10px;
+      font-size: 16px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .setup-phase select:hover {
+      border-color: #764ba2;
+      transform: translateY(-2px);
+    }
+    
+    .battle-arena {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 30px;
+    }
+    
+    .pokemon-card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+    
+    .pokemon-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .pokemon-card h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.8em;
+    }
+    
+    .pokemon-card img {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+      transition: transform 0.3s;
+    }
+    
+    .pokemon-card img:hover {
+      transform: scale(1.05);
+    }
+    
+    .hp-container {
+      margin-top: 15px;
+      background: #333;
+      border-radius: 10px;
+      padding: 3px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hp-bar {
+      height: 20px;
+      background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+      border-radius: 8px;
+      transition: width 0.5s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hp-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 60%);
+    }
+    
+    .hp-text {
+      margin-top: 5px;
+      font-weight: bold;
+      color: #666;
+    }
+    
+    .move-selection {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .move-selection h3 {
+      color: #764ba2;
+      margin-bottom: 15px;
+    }
+    
+    .move-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    
+    .move-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: capitalize;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .move-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .move-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .move-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .move-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Type-based move button colors */
+    .type-normal { background: #A8A878; color: white; }
+    .type-fire { background: #F08030; color: white; }
+    .type-water { background: #6890F0; color: white; }
+    .type-electric { background: #F8D030; color: #333; }
+    .type-grass { background: #78C850; color: white; }
+    .type-ice { background: #98D8D8; color: #333; }
+    .type-fighting { background: #C03028; color: white; }
+    .type-poison { background: #A040A0; color: white; }
+    .type-ground { background: #E0C068; color: #333; }
+    .type-flying { background: #A890F0; color: white; }
+    .type-psychic { background: #F85888; color: white; }
+    .type-bug { background: #A8B820; color: white; }
+    .type-rock { background: #B8A038; color: white; }
+    .type-ghost { background: #705898; color: white; }
+    .type-dragon { background: #7038F8; color: white; }
+    .type-dark { background: #705848; color: white; }
+    .type-steel { background: #B8B8D0; color: #333; }
+    .type-fairy { background: #EE99AC; color: white; }
+    
+    .battle-log {
+      background: #f8f9fa;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 20px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+    
+    .battle-log p {
+      margin: 5px 0;
+      padding: 5px 10px;
+      border-radius: 5px;
+      background: white;
+      border-left: 3px solid #667eea;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .control-buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .control-btn {
+      padding: 12px 30px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: white;
+    }
+    
+    .start-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .reset-btn {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .control-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .control-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .hidden { display: none; }
+    
+    .shake {
+      animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
   </style>
 </head>
 <body>
-  <h1>Pokémon Battle Engine</h1>
-
-  <!-- ▼ Pokémon & move selection UI ▼ -->
-  <div class="selectors">
-    <label for="user-select">Your Pokémon:</label>
-    <select id="user-select">
-      <option value="" disabled selected>— choose —</option>
-    </select>
-
-    <label for="opponent-select">Opponent:</label>
-    <select id="opponent-select">
-      <option value="" disabled selected>— random —</option>
-    </select>
-
-    <label for="move-select" style="margin-left:30px;">Your Move:</label>
-    <select id="move-select">
-      <option value="" disabled selected>— choose mon first —</option>
-    </select>
-  </div>
-
-  <div class="pokemon-container">
-    <div class="pokemon" id="user-pokemon">
-      <h2 id="user-pokemon-name">User Pokémon</h2>
-      <img id="user-pokemon-image" src="" alt="User Pokémon" width="150" style="display:none;"/>
-      <div class="hp-bar" id="user-hp-bar">HP: 0/0&nbsp;(0%)</div>
+  <div class="game-container">
+    <h1>⚔️ Pokémon Battle Engine ⚔️</h1>
+    
+    <div class="setup-phase" id="setup-phase">
+      <label for="user-select">Choose your Pokémon:</label>
+      <select id="user-select">
+        <option value="" disabled selected>— Select Pokémon —</option>
+      </select>
     </div>
-    <div class="pokemon" id="opponent-pokemon">
-      <h2 id="opponent-pokemon-name">Opponent Pokémon</h2>
-      <img id="opponent-pokemon-image" src="" alt="Opponent Pokémon" width="150" style="display:none;"/>
-      <div class="hp-bar" id="opponent-hp-bar">HP: 0/0&nbsp;(0%)</div>
+    
+    <div class="battle-arena hidden" id="battle-arena">
+      <div class="pokemon-card" id="user-pokemon">
+        <h2 id="user-pokemon-name">Your Pokémon</h2>
+        <img id="user-pokemon-image" src="" alt="User Pokémon"/>
+        <div class="hp-container">
+          <div class="hp-bar" id="user-hp-bar" style="width: 100%"></div>
+        </div>
+        <div class="hp-text" id="user-hp-text">HP: 100/100</div>
+      </div>
+      
+      <div class="pokemon-card" id="opponent-pokemon">
+        <h2 id="opponent-pokemon-name">Opponent Pokémon</h2>
+        <img id="opponent-pokemon-image" src="" alt="Opponent Pokémon"/>
+        <div class="hp-container">
+          <div class="hp-bar" id="opponent-hp-bar" style="width: 100%"></div>
+        </div>
+        <div class="hp-text" id="opponent-hp-text">HP: 100/100</div>
+      </div>
+    </div>
+    
+    <div class="move-selection hidden" id="move-selection">
+      <h3>Choose your move:</h3>
+      <div class="move-buttons" id="move-buttons"></div>
+    </div>
+    
+    <div class="battle-log" id="battle-log"></div>
+    
+    <div class="control-buttons">
+      <button class="control-btn start-btn" id="start-btn" onclick="startBattle()">Start Battle!</button>
+      <button class="control-btn reset-btn hidden" id="reset-btn" onclick="resetBattle()">New Battle</button>
     </div>
   </div>
-
-  <button onclick="loadSelection()">Load Sprites</button>
-  <button onclick="startBattle()">Start Battle</button>
-
-  <div class="battle-log" id="battle-log"></div>
 
   <script>
-    /* === CONST BLOCKS — FILL WITH FULL DATA YOURSELF ====================== */
-    // Pokémon stats, moves, types, and type effectiveness
-        const pokemonStats = {
-            "Dialga": [404, 339, 339, 399, 299, 279],
-            "Primal Kyogre": [404, 399, 279, 459, 419, 279],
-            "Mega Mewtwo Y": [416, 399, 239, 487, 339, 379],
-            "Arceus": [444, 339, 339, 339, 339, 339],
-            "Primal Groudon": [404, 459, 419, 399, 279, 279],
-            "Mega Rayquaza": [414, 459, 299, 459, 299, 329],
-            "Xerneas": [456, 361, 289, 361, 295, 297],
-            "Yveltal": [456, 361, 289, 361, 295, 297],
-            "Ultra Necrozma": [398, 433, 293, 433, 293, 357],
-            "Marshadow": [384, 349, 259, 279, 279, 349],
-            "Regigigas": [424, 419, 319, 259, 319, 299],
-            "Mega Salamence": [394, 389, 359, 339, 279, 339],
-            "Mega Gengar": [324, 229, 259, 439, 289, 359],
-            "Mega Gallade": [340, 429, 289, 229, 329, 319],
-            "Mega Metagross": [364, 389, 399, 309, 319, 319],
-            "Mega Blaziken": [364, 419, 259, 359, 259, 299],
-            "Calyrex Shadow Rider": [404, 269, 259, 429, 299, 399],
-            "Zacian Crowned": [388, 439, 329, 259, 329, 395],
-            "Zamazenta Crowned": [388, 359, 389, 259, 389, 355],
-            "Miraidon": [404, 269, 299, 369, 329, 369],
-            "Koraidon": [404, 369, 329, 269, 299, 369],
-            "Ho-Oh": [416, 359, 279, 319, 407, 279],
-            "Lugia": [416, 279, 359, 279, 407, 319],
-            "Reshiram": [404, 339, 299, 399, 339, 279],
-            "Zekrom": [404, 399, 339, 339, 299, 279],
-            "Zygarde": [420, 299, 341, 261, 289, 289],
-            "Kyurem White": [454, 339, 279, 439, 299, 289],
-            "Kyurem Black": [454, 439, 299, 339, 279, 289],
-            "Palkia Origin Forme": [384, 339, 299, 399, 339, 339],
-            "Lunala": [478, 325, 277, 373, 313, 293],
-            "Solgaleo": [478, 373, 313, 325, 277, 293],
-            "Mega Swampert": [404, 399, 319, 289, 319, 239]
-        };
-
-        const moves = {
-            "Roar of Time": { type: "Dragon", basePower: 150, accuracy: 90 },
-            "Earth Power": { type: "Ground", basePower: 90, accuracy: 100 },
-            "Flash Cannon": { type: "Steel", basePower: 80, accuracy: 100 },
-            "Aura Sphere": { type: "Fighting", basePower: 80, accuracy: 100 },
-            "Power Gem": { type: "Rock", basePower: 80, accuracy: 100 },
-            "Water Spout": { type: "Water", basePower: 150, accuracy: 100 },
-            "Grass Knot": { type: "Grass", basePower: 60, accuracy: 100 },
-            "Ice Beam": { type: "Ice", basePower: 90, accuracy: 100 },
-            "Body Slam": { type: "Normal", basePower: 85, accuracy: 100 },
-            "Future Sight": { type: "Psychic", basePower: 120, accuracy: 100 },
-            "Ancient Power": { type: "Rock", basePower: 60, accuracy: 100 },
-            "Psychic": { type: "Psychic", basePower: 90, accuracy: 100 },
-            "Hyper Beam": { type: "Normal", basePower: 150, accuracy: 90 },
-            "Judgment": { type: "Normal", basePower: 100, accuracy: 100 },
-            "Precipice Blades": { type: "Ground", basePower: 120, accuracy: 85 },
-            "Stone Edge": { type: "Rock", basePower: 100, accuracy: 80 },
-            "Fire Punch": { type: "Fire", basePower: 75, accuracy: 100 },
-            "Thunder Punch": { type: "Electric", basePower: 75, accuracy: 100 },
-            "Outrage": { type: "Dragon", basePower: 120, accuracy: 100 },
-            "Extreme Speed": { type: "Normal", basePower: 80, accuracy: 100 },
-            "Crunch": { type: "Dark", basePower: 80, accuracy: 100 },
-            "Dragon Ascent": { type: "Flying", basePower: 120, accuracy: 100 },
-            "Play Rough": { type: "Fairy", basePower: 90, accuracy: 90 },
-            "Close Combat": { type: "Fighting", basePower: 120, accuracy: 100 },
-            "Giga Impact": { type: "Normal", basePower: 150, accuracy: 90 },
-            "Megahorn": { type: "Bug", basePower: 120, accuracy: 85 },
-            "Sky Attack": { type: "Flying", basePower: 140, accuracy: 90 },
-            "Dragon Rush": { type: "Dragon", basePower: 100, accuracy: 75 },
-            "Focus Blast": { type: "Fighting", basePower: 120, accuracy: 70 },
-            "Foul Play": { type: "Dark", basePower: 95, accuracy: 100 },
-            "Prismatic Laser": { type: "Psychic", basePower: 160, accuracy: 100 },
-            "Charge Beam": { type: "Electric", basePower: 50, accuracy: 90 },
-            "Night Slash": { type: "Dark", basePower: 70, accuracy: 100 },
-            "Spectral Thief": { type: "Ghost", basePower: 90, accuracy: 100 },
-            "Ice Punch": { type: "Ice", basePower: 75, accuracy: 100 },
-            "Hammer Arm": { type: "Fighting", basePower: 100, accuracy: 90 },
-            "Zen Headbutt": { type: "Psychic", basePower: 80, accuracy: 90 },
-            "Knock Off": { type: "Dark", basePower: 65, accuracy: 100 },
-            "Fly": { type: "Flying", basePower: 90, accuracy: 95 },
-            "Flamethrower": { type: "Fire", basePower: 90, accuracy: 100 },
-            "Sludge Bomb": { type: "Poison", basePower: 90, accuracy: 100 },
-            "Shadow Ball": { type: "Ghost", basePower: 80, accuracy: 100 },
-            "Dream Eater": { type: "Psychic", basePower: 100, accuracy: 100 },
-            "Dark Pulse": { type: "Dark", basePower: 80, accuracy: 100 },
-            "Psycho Cut": { type: "Psychic", basePower: 70, accuracy: 100 },
-            "Leaf Blade": { type: "Grass", basePower: 90, accuracy: 100 },
-            "Meteor Mash": { type: "Steel", basePower: 90, accuracy: 90 },
-            "Earthquake": { type: "Ground", basePower: 100, accuracy: 100 },
-            "Flare Blitz": { type: "Fire", basePower: 120, accuracy: 100 },
-            "Brave Bird": { type: "Flying", basePower: 120, accuracy: 100 },
-            "Shadow Claw": { type: "Ghost", basePower: 70, accuracy: 100 },
-            "Astral Barrage": { type: "Ghost", basePower: 120, accuracy: 100 },
-            "Solar Beam": { type: "Grass", basePower: 120, accuracy: 100 },
-            "Snarl": { type: "Dark", basePower: 55, accuracy: 95 },
-            "Behemoth Blade": { type: "Steel", basePower: 100, accuracy: 100 },
-            "Behemoth Bash": { type: "Steel", basePower: 100, accuracy: 100 },
-            "Wild Charge": { type: "Electric", basePower: 90, accuracy: 100 },
-            "Dragon Pulse": { type: "Dragon", basePower: 85, accuracy: 100 },
-            "Electro Drift": { type: "Electric", basePower: 100, accuracy: 100 },
-            "Overheat": { type: "Fire", basePower: 130, accuracy: 90 },
-            "Sacred Fire": { type: "Fire", basePower: 100, accuracy: 95 },
-            "Iron Head": { type: "Steel", basePower: 80, accuracy: 100 },
-            "Aeroblast": { type: "Flying", basePower: 100, accuracy: 95 },
-            "Thunder": { type: "Electric", basePower: 110, accuracy: 70 },
-            "Hydro Pump": { type: "Water", basePower: 110, accuracy: 80 },
-            "Blue Flare": { type: "Fire", basePower: 130, accuracy: 85 },
-            "Fusion Flare": { type: "Fire", basePower: 100, accuracy: 100 },
-            "Fusion Bolt": { type: "Electric", basePower: 100, accuracy: 100 },
-            "Freeze Shock": { type: "Ice", basePower: 140, accuracy: 90 },
-            "Ice Burn": { type: "Ice", basePower: 140, accuracy: 90 },
-            "Moongeist Beam": { type: "Ghost", basePower: 100, accuracy: 100 },
-            "Sunsteel Strike": { type: "Steel", basePower: 100, accuracy: 100 },
-            "Wave Crash": { type: "Water", basePower: 120, accuracy: 100 }
-        };
-
-        const pokemonMoves = {
-            "Dialga": ["Roar of Time", "Earth Power", "Flash Cannon", "Aura Sphere", "Power Gem"],
-            "Primal Kyogre": ["Water Spout", "Grass Knot", "Ice Beam", "Body Slam"],
-            "Mega Mewtwo Y": ["Future Sight", "Ancient Power", "Psychic"],
-            "Arceus": ["Hyper Beam", "Future Sight", "Earth Power", "Judgment"],
-            "Primal Groudon": ["Precipice Blades", "Stone Edge", "Fire Punch", "Thunder Punch"],
-            "Mega Rayquaza": ["Outrage", "Extreme Speed", "Crunch", "Dragon Ascent"],
-            "Xerneas": ["Play Rough", "Close Combat", "Giga Impact", "Megahorn"],
-            "Yveltal": ["Sky Attack", "Dragon Rush", "Focus Blast", "Foul Play"],
-            "Ultra Necrozma": ["Prismatic Laser", "Power Gem", "Charge Beam", "Night Slash"],
-            "Marshadow": ["Close Combat", "Spectral Thief", "Ice Punch", "Fire Punch"],
-            "Regigigas": ["Giga Impact", "Hammer Arm", "Zen Headbutt", "Knock Off"],
-            "Mega Salamence": ["Outrage", "Fly", "Flamethrower", "Crunch"],
-            "Mega Gengar": ["Sludge Bomb", "Shadow Ball", "Dream Eater", "Dark Pulse"],
-            "Mega Gallade": ["Close Combat", "Psycho Cut", "Leaf Blade", "Night Slash"],
-            "Mega Metagross": ["Meteor Mash", "Zen Headbutt", "Hammer Arm", "Earthquake"],
-            "Mega Blaziken": ["High Jump Kick", "Flare Blitz", "Brave Bird", "Shadow Claw"],
-            "Calyrex Shadow Rider": ["Astral Barrage", "Solar Beam", "Future Sight", "Snarl"],
-            "Zacian Crowned": ["Play Rough", "Behemoth Blade", "Giga Impact", "Zen Headbutt"],
-            "Zamazenta Crowned": ["Close Combat", "Behemoth Bash", "Wild Charge", "Crunch"],
-            "Miraidon": ["Dragon Pulse", "Electro Drift", "Overheat", "Hyper Beam"],
-            "Koraidon": ["Close Combat", "Outrage", "Flare Blitz", "Giga Impact"],
-            "Ho-Oh": ["Sky Attack", "Sacred Fire", "Iron Head", "Zen Headbutt"],
-            "Lugia": ["Aeroblast", "Thunder", "Hydro Pump", "Future Sight"],
-            "Reshiram": ["Blue Flare", "Dragon Pulse", "Earth Power", "Extrasensory"],
-            "Zekrom": ["Bolt Strike", "Outrage", "Crunch", "Rock Slide"],
-            "Zygarde": ["Earthquake", "Outrage", "Crunch", "Stone Edge"],
-            "Kyurem White": ["Ice Burn", "Fusion Flare", "Dragon Pulse", "Psychic"],
-            "Kyurem Black": ["Outrage", "Freeze Shock", "Fusion Bolt", "Shadow Claw"],
-            "Palkia Origin Forme": ["Spacial Rend", "Hydro Pump", "Earth Power", "Power Gem"],
-            "Lunala": ["Future Sight", "Moongeist Beam", "Focus Blast", "Moonblast"],
-            "Solgaleo": ["Sunsteel Strike", "Zen Headbutt", "Giga Impact", "Crunch"],
-            "Mega Swampert": ["Earthquake", "Wave Crash", "Hammer Arm", "Stone Edge"]
-        };
-
-
-        const pokemonTypes = {
-            "Dialga": ["Dragon", "Steel"],
-            "Primal Kyogre": ["Water"],
-            "Mega Mewtwo Y": ["Psychic"],
-            "Arceus": ["Normal"],
-            "Primal Groudon": ["Ground", "Fire"],
-            "Mega Rayquaza": ["Dragon", "Flying"],
-            "Xerneas": ["Fairy"],
-            "Yveltal": ["Dark", "Flying"],
-            "Ultra Necrozma": ["Psychic", "Dragon"],
-            "Marshadow": ["Fighting", "Ghost"],
-            "Regigigas": ["Normal"],
-            "Mega Salamence": ["Dragon", "Flying"],
-            "Mega Gengar": ["Ghost", "Poison"],
-            "Mega Gallade": ["Psychic", "Fighting"],
-            "Mega Metagross": ["Steel", "Psychic"],
-            "Mega Blaziken": ["Fire", "Fighting"],
-            "Calyrex Shadow Rider": ["Psychic", "Ghost"],
-            "Zacian Crowned": ["Fairy", "Steel"],
-            "Zamazenta Crowned": ["Fighting", "Steel"],
-            "Miraidon": ["Electric", "Dragon"],
-            "Koraidon": ["Fighting", "Dragon"],
-            "Ho-Oh": ["Fire", "Flying"],
-            "Lugia": ["Psychic", "Flying"],
-            "Reshiram": ["Dragon", "Fire"],
-            "Zekrom": ["Dragon", "Electric"],
-            "Zygarde": ["Dragon", "Ground"],
-            "Kyurem White": ["Dragon", "Ice"],
-            "Kyurem Black": ["Dragon", "Ice"],
-            "Palkia Origin Forme": ["Water", "Dragon"],
-            "Lunala": ["Psychic", "Ghost"],
-            "Solgaleo": ["Steel", "Psychic"],
-            "Mega Swampert": ["Water", "Ground"]
-        };
-
-        const typeChart = {
-            "Normal": { "Rock": 0.5, "Ghost": 0, "Steel": 0.5 },
-            "Fire": { "Fire": 0.5, "Water": 0.5, "Grass": 2, "Ice": 2, "Bug": 2, "Rock": 0.5, "Dragon": 0.5, "Steel": 2 },
-            "Water": { "Fire": 2, "Water": 0.5, "Grass": 0.5, "Ground": 2, "Rock": 2, "Dragon": 0.5 },
-            "Electric": { "Water": 2, "Electric": 0.5, "Grass": 0.5, "Ground": 0, "Flying": 2, "Dragon": 0.5 },
-            "Grass": { "Fire": 0.5, "Water": 2, "Grass": 0.5, "Poison": 0.5, "Ground": 2, "Flying": 0.5, "Bug": 0.5, "Rock": 2, "Dragon": 0.5, "Steel": 0.5 },
-            "Ice": { "Fire": 0.5, "Water": 0.5, "Grass": 2, "Ice": 0.5, "Ground": 2, "Flying": 2, "Dragon": 2, "Steel": 0.5 },
-            "Fighting": { "Normal": 2, "Ice": 2, "Rock": 2, "Dark": 2, "Steel": 2, "Poison": 0.5, "Flying": 0.5, "Psychic": 0.5, "Bug": 0.5, "Fairy": 0.5, "Ghost": 0 },
-            "Poison": { "Grass": 2, "Poison": 0.5, "Ground": 0.5, "Rock": 0.5, "Ghost": 0.5, "Steel": 0, "Fairy": 2 },
-            "Ground": { "Fire": 2, "Electric": 2, "Grass": 0.5, "Poison": 2, "Flying": 0, "Bug": 0.5, "Rock": 2, "Steel": 2 },
-            "Flying": { "Electric": 0.5, "Grass": 2, "Fighting": 2, "Bug": 2, "Rock": 0.5, "Steel": 0.5 },
-            "Psychic": { "Fighting": 2, "Poison": 2, "Psychic": 0.5, "Dark": 0, "Steel": 0.5 },
-            "Bug": { "Fire": 0.5, "Grass": 2, "Fighting": 0.5, "Poison": 0.5, "Flying": 0.5, "Psychic": 2, "Ghost": 0.5, "Dark": 2, "Steel": 0.5, "Fairy": 0.5 },
-            "Rock": { "Fire": 2, "Ice": 2, "Fighting": 0.5, "Ground": 0.5, "Flying": 2, "Bug": 2, "Steel": 0.5 },
-            "Ghost": { "Normal": 0, "Psychic": 2, "Ghost": 2, "Dark": 0.5 },
-            "Dragon": { "Dragon": 2, "Steel": 0.5, "Fairy": 0 },
-            "Dark": { "Fighting": 0.5, "Psychic": 2, "Ghost": 2, "Dark": 0.5, "Fairy": 0.5 },
-            "Steel": { "Fire": 0.5, "Water": 0.5, "Electric": 0.5, "Ice": 2, "Rock": 2, "Steel": 0.5, "Fairy": 2 },
-            "Fairy": { "Fire": 0.5, "Fighting": 2, "Poison": 0.5, "Dragon": 2, "Dark": 2, "Steel": 0.5 }
-        };
-
-        const pokemonImages = {
-            "Dialga": "https://img.pokemondb.net/artwork/large/dialga.jpg",
-            "Primal Kyogre": "https://img.pokemondb.net/artwork/large/kyogre-primal.jpg",
-            "Mega Mewtwo Y": "https://img.pokemondb.net/artwork/large/mewtwo-mega-y.jpg",
-            "Arceus": "https://img.pokemondb.net/artwork/large/arceus.jpg",
-            "Primal Groudon": "https://img.pokemondb.net/artwork/large/groudon-primal.jpg",
-            "Mega Rayquaza": "https://img.pokemondb.net/artwork/large/rayquaza-mega.jpg",
-            "Xerneas": "https://img.pokemondb.net/artwork/large/xerneas.jpg",
-            "Yveltal": "https://img.pokemondb.net/artwork/large/yveltal.jpg",
-            "Ultra Necrozma": "https://img.pokemondb.net/artwork/large/necrozma-ultra.jpg",
-            "Marshadow": "https://img.pokemondb.net/artwork/large/marshadow.jpg",
-            "Regigigas": "https://img.pokemondb.net/artwork/large/regigigas.jpg",
-            "Mega Salamence": "https://img.pokemondb.net/artwork/large/salamence-mega.jpg",
-            "Mega Gengar": "https://img.pokemondb.net/artwork/large/gengar-mega.jpg",
-            "Mega Gallade": "https://img.pokemondb.net/artwork/large/gallade-mega.jpg",
-            "Mega Metagross": "https://img.pokemondb.net/artwork/large/metagross-mega.jpg",
-            "Mega Blaziken": "https://img.pokemondb.net/artwork/large/blaziken-mega.jpg",
-            "Calyrex Shadow Rider": "https://img.pokemondb.net/artwork/large/calyrex-shadow-rider.jpg",
-            "Zacian Crowned": "https://img.pokemondb.net/artwork/large/zacian-crowned.jpg",
-            "Zamazenta Crowned": "https://img.pokemondb.net/artwork/large/zamazenta-crowned.jpg",
-            "Miraidon": "https://img.pokemondb.net/artwork/large/miraidon.jpg",
-            "Koraidon": "https://img.pokemondb.net/artwork/large/koraidon.jpg",
-            "Ho-Oh": "https://img.pokemondb.net/artwork/large/ho-oh.jpg",
-            "Lugia": "https://img.pokemondb.net/artwork/large/lugia.jpg",
-            "Reshiram": "https://img.pokemondb.net/artwork/large/reshiram.jpg",
-            "Zekrom": "https://img.pokemondb.net/artwork/large/zekrom.jpg",
-            "Zygarde": "https://img.pokemondb.net/artwork/large/zygarde.jpg",
-            "Kyurem White": "https://img.pokemondb.net/artwork/large/kyurem-white.jpg",
-            "Kyurem Black": "https://img.pokemondb.net/artwork/large/kyurem-black.jpg",
-            "Palkia Origin Forme": "https://img.pokemondb.net/artwork/large/palkia-origin.jpg",
-            "Lunala": "https://img.pokemondb.net/artwork/large/lunala.jpg",
-            "Solgaleo": "https://img.pokemondb.net/artwork/large/solgaleo.jpg",
-            "Mega Swampert": "https://img.pokemondb.net/artwork/large/swampert-mega.jpg"
-        };
-
-    /* ====================================================================== */
-
-    const pokemonList = Object.keys(pokemonStats);
-
-    /* ---- populate dropdowns on load ---- */
-    window.onload = () => {
-      const userSel = document.getElementById("user-select");
-      const oppSel  = document.getElementById("opponent-select");
-
-      pokemonList.forEach(name=>{
-        const op1=document.createElement("option");
-        op1.value=name; op1.textContent=name;
-        userSel.appendChild(op1);
-
-        const op2=op1.cloneNode(true);
-        oppSel.appendChild(op2);
-      });
-
-      userSel.addEventListener("change",()=>populateMoveDropdown(userSel.value));
+    // Game state
+    let gameState = {
+      userPokemon: null,
+      opponentPokemon: null,
+      userHP: 0,
+      userMaxHP: 0,
+      oppHP: 0,
+      oppMaxHP: 0,
+      battleActive: false,
+      waitingForMove: false,
+      currentTurn: 'user'
     };
 
-    function populateMoveDropdown(pokeName){
-      const moveSel=document.getElementById("move-select");
-      moveSel.innerHTML="";
-      pokemonMoves[pokeName].forEach(mn=>{
-        const op=document.createElement("option");
-        op.value=mn; op.textContent=mn;
-        moveSel.appendChild(op);
-      });
-      moveSel.selectedIndex=0;
-    }
+    // Pokémon data
+    const pokemonStats = {
+      "Dialga": [404, 339, 339, 399, 299, 279],
+      "Primal Kyogre": [404, 399, 279, 459, 419, 279],
+      "Mega Mewtwo Y": [416, 399, 239, 487, 339, 379],
+      "Arceus": [444, 339, 339, 339, 339, 339],
+      "Primal Groudon": [404, 459, 419, 399, 279, 279],
+      "Mega Rayquaza": [414, 459, 299, 459, 299, 329],
+      "Xerneas": [456, 361, 289, 361, 295, 297],
+      "Yveltal": [456, 361, 289, 361, 295, 297],
+      "Ultra Necrozma": [398, 433, 293, 433, 293, 357],
+      "Marshadow": [384, 349, 259, 279, 279, 349],
+      "Regigigas": [424, 419, 319, 259, 319, 299],
+      "Mega Salamence": [394, 389, 359, 339, 279, 339],
+      "Mega Gengar": [324, 229, 259, 439, 289, 359],
+      "Mega Gallade": [340, 429, 289, 229, 329, 319],
+      "Mega Metagross": [364, 389, 399, 309, 319, 319],
+      "Mega Blaziken": [364, 419, 259, 359, 259, 299],
+      "Calyrex Shadow Rider": [404, 269, 259, 429, 299, 399],
+      "Zacian Crowned": [388, 439, 329, 259, 329, 395],
+      "Zamazenta Crowned": [388, 359, 389, 259, 389, 355],
+      "Miraidon": [404, 269, 299, 369, 329, 369],
+      "Koraidon": [404, 369, 329, 269, 299, 369],
+      "Ho-Oh": [416, 359, 279, 319, 407, 279],
+      "Lugia": [416, 279, 359, 279, 407, 319],
+      "Reshiram": [404, 339, 299, 399, 339, 279],
+      "Zekrom": [404, 399, 339, 339, 299, 279],
+      "Zygarde": [420, 299, 341, 261, 289, 289],
+      "Kyurem White": [454, 339, 279, 439, 299, 289],
+      "Kyurem Black": [454, 439, 299, 339, 279, 289],
+      "Palkia Origin Forme": [384, 339, 299, 399, 339, 339],
+      "Lunala": [478, 325, 277, 373, 313, 293],
+      "Solgaleo": [478, 373, 313, 325, 277, 293],
+      "Mega Swampert": [404, 399, 319, 289, 319, 239]
+    };
 
-    /* ---- load sprites / HP once picks are ready ---- */
-    function loadSelection(){
-      const userP=document.getElementById("user-select").value;
-      let oppP = document.getElementById("opponent-select").value;
-      if(!userP){ alert("Pick your Pokémon first."); return; }
-      if(!oppP)  oppP = pokemonList[Math.floor(Math.random()*pokemonList.length)];
+    const moves = {
+      "Roar of Time": { type: "Dragon", basePower: 150, accuracy: 90, category: "special" },
+      "Earth Power": { type: "Ground", basePower: 90, accuracy: 100, category: "special" },
+      "Flash Cannon": { type: "Steel", basePower: 80, accuracy: 100, category: "special" },
+      "Aura Sphere": { type: "Fighting", basePower: 80, accuracy: 100, category: "special" },
+      "Power Gem": { type: "Rock", basePower: 80, accuracy: 100, category: "special" },
+      "Water Spout": { type: "Water", basePower: 150, accuracy: 100, category: "special" },
+      "Grass Knot": { type: "Grass", basePower: 60, accuracy: 100, category: "special" },
+      "Ice Beam": { type: "Ice", basePower: 90, accuracy: 100, category: "special" },
+      "Body Slam": { type: "Normal", basePower: 85, accuracy: 100, category: "physical" },
+      "Future Sight": { type: "Psychic", basePower: 120, accuracy: 100, category: "special" },
+      "Ancient Power": { type: "Rock", basePower: 60, accuracy: 100, category: "special" },
+      "Psychic": { type: "Psychic", basePower: 90, accuracy: 100, category: "special" },
+      "Hyper Beam": { type: "Normal", basePower: 150, accuracy: 90, category: "special" },
+      "Judgment": { type: "Normal", basePower: 100, accuracy: 100, category: "special" },
+      "Precipice Blades": { type: "Ground", basePower: 120, accuracy: 85, category: "physical" },
+      "Stone Edge": { type: "Rock", basePower: 100, accuracy: 80, category: "physical" },
+      "Fire Punch": { type: "Fire", basePower: 75, accuracy: 100, category: "physical" },
+      "Thunder Punch": { type: "Electric", basePower: 75, accuracy: 100, category: "physical" },
+      "Outrage": { type: "Dragon", basePower: 120, accuracy: 100, category: "physical" },
+      "Extreme Speed": { type: "Normal", basePower: 80, accuracy: 100, category: "physical" },
+      "Crunch": { type: "Dark", basePower: 80, accuracy: 100, category: "physical" },
+      "Dragon Ascent": { type: "Flying", basePower: 120, accuracy: 100, category: "physical" },
+      "Play Rough": { type: "Fairy", basePower: 90, accuracy: 90, category: "physical" },
+      "Close Combat": { type: "Fighting", basePower: 120, accuracy: 100, category: "physical" },
+      "Giga Impact": { type: "Normal", basePower: 150, accuracy: 90, category: "physical" },
+      "Megahorn": { type: "Bug", basePower: 120, accuracy: 85, category: "physical" },
+      "Sky Attack": { type: "Flying", basePower: 140, accuracy: 90, category: "physical" },
+      "Dragon Rush": { type: "Dragon", basePower: 100, accuracy: 75, category: "physical" },
+      "Focus Blast": { type: "Fighting", basePower: 120, accuracy: 70, category: "special" },
+      "Foul Play": { type: "Dark", basePower: 95, accuracy: 100, category: "physical" },
+      "Prismatic Laser": { type: "Psychic", basePower: 160, accuracy: 100, category: "special" },
+      "Charge Beam": { type: "Electric", basePower: 50, accuracy: 90, category: "special" },
+      "Night Slash": { type: "Dark", basePower: 70, accuracy: 100, category: "physical" },
+      "Spectral Thief": { type: "Ghost", basePower: 90, accuracy: 100, category: "physical" },
+      "Ice Punch": { type: "Ice", basePower: 75, accuracy: 100, category: "physical" },
+      "Hammer Arm": { type: "Fighting", basePower: 100, accuracy: 90, category: "physical" },
+      "Zen Headbutt": { type: "Psychic", basePower: 80, accuracy: 90, category: "physical" },
+      "Knock Off": { type: "Dark", basePower: 65, accuracy: 100, category: "physical" },
+      "Fly": { type: "Flying", basePower: 90, accuracy: 95, category: "physical" },
+      "Flamethrower": { type: "Fire", basePower: 90, accuracy: 100, category: "special" },
+      "Sludge Bomb": { type: "Poison", basePower: 90, accuracy: 100, category: "special" },
+      "Shadow Ball": { type: "Ghost", basePower: 80, accuracy: 100, category: "special" },
+      "Dream Eater": { type: "Psychic", basePower: 100, accuracy: 100, category: "special" },
+      "Dark Pulse": { type: "Dark", basePower: 80, accuracy: 100, category: "special" },
+      "Psycho Cut": { type: "Psychic", basePower: 70, accuracy: 100, category: "physical" },
+      "Leaf Blade": { type: "Grass", basePower: 90, accuracy: 100, category: "physical" },
+      "Meteor Mash": { type: "Steel", basePower: 90, accuracy: 90, category: "physical" },
+      "Earthquake": { type: "Ground", basePower: 100, accuracy: 100, category: "physical" },
+      "Flare Blitz": { type: "Fire", basePower: 120, accuracy: 100, category: "physical" },
+      "Brave Bird": { type: "Flying", basePower: 120, accuracy: 100, category: "physical" },
+      "Shadow Claw": { type: "Ghost", basePower: 70, accuracy: 100, category: "physical" },
+      "Astral Barrage": { type: "Ghost", basePower: 120, accuracy: 100, category: "special" },
+      "Solar Beam": { type: "Grass", basePower: 120, accuracy: 100, category: "special" },
+      "Snarl": { type: "Dark", basePower: 55, accuracy: 95, category: "special" },
+      "Behemoth Blade": { type: "Steel", basePower: 100, accuracy: 100, category: "physical" },
+      "Behemoth Bash": { type: "Steel", basePower: 100, accuracy: 100, category: "physical" },
+      "Wild Charge": { type: "Electric", basePower: 90, accuracy: 100, category: "physical" },
+      "Dragon Pulse": { type: "Dragon", basePower: 85, accuracy: 100, category: "special" },
+      "Electro Drift": { type: "Electric", basePower: 100, accuracy: 100, category: "special" },
+      "Overheat": { type: "Fire", basePower: 130, accuracy: 90, category: "special" },
+      "Sacred Fire": { type: "Fire", basePower: 100, accuracy: 95, category: "physical" },
+      "Iron Head": { type: "Steel", basePower: 80, accuracy: 100, category: "physical" },
+      "Aeroblast": { type: "Flying", basePower: 100, accuracy: 95, category: "special" },
+      "Thunder": { type: "Electric", basePower: 110, accuracy: 70, category: "special" },
+      "Hydro Pump": { type: "Water", basePower: 110, accuracy: 80, category: "special" },
+      "Blue Flare": { type: "Fire", basePower: 130, accuracy: 85, category: "special" },
+      "Fusion Flare": { type: "Fire", basePower: 100, accuracy: 100, category: "special" },
+      "Fusion Bolt": { type: "Electric", basePower: 100, accuracy: 100, category: "physical" },
+      "Freeze Shock": { type: "Ice", basePower: 140, accuracy: 90, category: "physical" },
+      "Ice Burn": { type: "Ice", basePower: 140, accuracy: 90, category: "special" },
+      "Moongeist Beam": { type: "Ghost", basePower: 100, accuracy: 100, category: "special" },
+      "Sunsteel Strike": { type: "Steel", basePower: 100, accuracy: 100, category: "physical" },
+      "Wave Crash": { type: "Water", basePower: 120, accuracy: 100, category: "physical" },
+      "High Jump Kick": { type: "Fighting", basePower: 130, accuracy: 90, category: "physical" },
+      "Bolt Strike": { type: "Electric", basePower: 130, accuracy: 85, category: "physical" },
+      "Rock Slide": { type: "Rock", basePower: 75, accuracy: 90, category: "physical" },
+      "Spacial Rend": { type: "Dragon", basePower: 100, accuracy: 95, category: "special" },
+      "Extrasensory": { type: "Psychic", basePower: 80, accuracy: 100, category: "special" },
+      "Moonblast": { type: "Fairy", basePower: 95, accuracy: 100, category: "special" }
+    };
 
-      // store selections
-      window.selectedUserPokemon     = userP;
-      window.selectedOpponentPokemon = oppP;
+    const pokemonMoves = {
+      "Dialga": ["Roar of Time", "Earth Power", "Flash Cannon", "Aura Sphere"],
+      "Primal Kyogre": ["Water Spout", "Ice Beam", "Thunder", "Earth Power"],
+      "Mega Mewtwo Y": ["Psychic", "Aura Sphere", "Shadow Ball", "Ice Beam"],
+      "Arceus": ["Judgment", "Extreme Speed", "Earth Power", "Shadow Ball"],
+      "Primal Groudon": ["Precipice Blades", "Fire Punch", "Stone Edge", "Thunder Punch"],
+      "Mega Rayquaza": ["Dragon Ascent", "Extreme Speed", "Earthquake", "Dragon Pulse"],
+      "Xerneas": ["Moonblast", "Focus Blast", "Thunder", "Psychic"],
+      "Yveltal": ["Dark Pulse", "Oblivion Wing", "Focus Blast", "Heat Wave"],
+      "Ultra Necrozma": ["Photon Geyser", "Heat Wave", "Dragon Pulse", "Power Gem"],
+      "Marshadow": ["Spectral Thief", "Close Combat", "Shadow Sneak", "Ice Punch"],
+      "Regigigas": ["Crush Grip", "Earthquake", "Stone Edge", "Ice Punch"],
+      "Mega Salamence": ["Double-Edge", "Earthquake", "Dragon Claw", "Fire Blast"],
+      "Mega Gengar": ["Shadow Ball", "Sludge Wave", "Focus Blast", "Thunderbolt"],
+      "Mega Gallade": ["Close Combat", "Zen Headbutt", "Leaf Blade", "Ice Punch"],
+      "Mega Metagross": ["Meteor Mash", "Zen Headbutt", "Earthquake", "Ice Punch"],
+      "Mega Blaziken": ["Flare Blitz", "High Jump Kick", "Stone Edge", "Thunder Punch"],
+      "Calyrex Shadow Rider": ["Astral Barrage", "Psyshock", "Draining Kiss", "Nasty Plot"],
+      "Zacian Crowned": ["Behemoth Blade", "Play Rough", "Close Combat", "Wild Charge"],
+      "Zamazenta Crowned": ["Behemoth Bash", "Close Combat", "Stone Edge", "Ice Fang"],
+      "Miraidon": ["Electro Drift", "Draco Meteor", "Overheat", "U-turn"],
+      "Koraidon": ["Collision Course", "Flare Blitz", "U-turn", "Dragon Claw"],
+      "Ho-Oh": ["Sacred Fire", "Brave Bird", "Earthquake", "Thunder Wave"],
+      "Lugia": ["Aeroblast", "Roost", "Thunder Wave", "Whirlwind"],
+      "Reshiram": ["Blue Flare", "Draco Meteor", "Earth Power", "Stone Edge"],
+      "Zekrom": ["Bolt Strike", "Outrage", "Stone Edge", "Dragon Claw"],
+      "Zygarde": ["Thousand Arrows", "Dragon Dance", "Extreme Speed", "Stone Edge"],
+      "Kyurem White": ["Ice Burn", "Fusion Flare", "Draco Meteor", "Earth Power"],
+      "Kyurem Black": ["Freeze Shock", "Fusion Bolt", "Dragon Claw", "Iron Head"],
+      "Palkia Origin Forme": ["Spacial Rend", "Hydro Pump", "Thunder", "Fire Blast"],
+      "Lunala": ["Moongeist Beam", "Psyshock", "Focus Blast", "Ice Beam"],
+      "Solgaleo": ["Sunsteel Strike", "Flare Blitz", "Earthquake", "Stone Edge"],
+      "Mega Swampert": ["Waterfall", "Earthquake", "Ice Punch", "Superpower"]
+    };
 
-      // sprites & HP bars
-      document.getElementById("user-pokemon-name").textContent=userP;
-      document.getElementById("user-pokemon-image").src=pokemonImages[userP];
-      document.getElementById("user-pokemon-image").style.display="block";
-
-      document.getElementById("opponent-pokemon-name").textContent=oppP;
-      document.getElementById("opponent-pokemon-image").src=pokemonImages[oppP];
-      document.getElementById("opponent-pokemon-image").style.display="block";
-
-      const uhp=pokemonStats[userP][0], ohp=pokemonStats[oppP][0];
-      document.getElementById("user-hp-bar").textContent=`HP: ${uhp}/${uhp} (100%)`;
-      document.getElementById("opponent-hp-bar").textContent=`HP: ${ohp}/${ohp} (100%)`;
-
-      // default move dropdown (if not already populated)
-      if(document.getElementById("move-select").options.length===0)
-        populateMoveDropdown(userP);
-    }
-
-    /* ---- start battle ---- */
-    function startBattle(){
-      const userP=window.selectedUserPokemon;
-      const oppP =window.selectedOpponentPokemon;
-      const moveSel=document.getElementById("move-select").value;
-
-      if(!userP||!oppP){ alert("Click ‘Load Sprites’ first."); return; }
-      if(!moveSel){ alert("Choose your move."); return; }
-
-      document.getElementById("battle-log").innerHTML="";
-      runBattle(userP,oppP,moveSel);
-    }
-
-    /* ---- core battle loop ---- */
-    function runBattle(userP,oppP,userMove){
-      let uHP = pokemonStats[userP][0];
-      let oHP = pokemonStats[oppP][0];
-      const uSpd=pokemonStats[userP][5], oSpd=pokemonStats[oppP][5];
-
-      let userTurn = uSpd>oSpd || (uSpd===oSpd && Math.random()<0.5);
-
-      while(uHP>0 && oHP>0){
-        if(userTurn){
-          oHP = doAttack(userP,oppP,oHP,userMove);  updateHP("opponent",oHP,pokemonStats[oppP][0]);
-          if(oHP<=0) break;
-          uHP = doAttack(oppP,userP,uHP);            updateHP("user",uHP,pokemonStats[userP][0]);
-        }else{
-          uHP = doAttack(oppP,userP,uHP);            updateHP("user",uHP,pokemonStats[userP][0]);
-          if(uHP<=0) break;
-          oHP = doAttack(userP,oppP,oHP,userMove);   updateHP("opponent",oHP,pokemonStats[oppP][0]);
-        }
-        userTurn = !userTurn;         // alternate lead each round
-      }
-      log(`${uHP>0?userP:oppP} wins!`);
-    }
-
-    /* ---- perform one attack ---- */
-    function doAttack(attacker,defender,defHP,forcedMove){
-      const moveName = forcedMove || pokemonMoves[attacker][Math.floor(Math.random()*pokemonMoves[attacker].length)];
-      const mv = moves[moveName];
-
-      if(Math.random()*100 > mv.accuracy){ log(`${attacker}'s ${moveName} missed!`); return defHP; }
-
-      const phys = ["Body Slam","Hyper Beam","Roar of Time","Earthquake","Stone Edge","Ice Punch",
-                    "Hammer Arm","Close Combat","Crunch","Play Rough","Giga Impact","Outrage",
-                    "Extreme Speed","Dragon Rush","Brave Bird","Sky Attack","Aeroblast","Sacred Fire",
-                    "Iron Head","Zen Headbutt","Knock Off","Behemoth Bash","Behemoth Blade",
-                    "Dragon Ascent","Wild Charge","Fusion Bolt","Dragon Pulse"].includes(moveName);
-
-      const atk = phys ? pokemonStats[attacker][1] : pokemonStats[attacker][3];
-      const def = phys ? pokemonStats[defender ][2] : pokemonStats[defender ][4];
-
-      const stab = pokemonTypes[attacker].includes(mv.type)?1.5:1;
-      const eff  = pokemonTypes[defender].reduce((m,t)=>m*(typeChart[mv.type]?.[t]||1),1);
-      const rand = Math.random()*0.15+0.85;
-      let dmg=Math.floor(((((2*100/5+2)*mv.basePower*(atk/def))/50)+2)*stab*eff*rand);
-      if(eff>0 && dmg<1) dmg=1; if(eff===0) dmg=0;
-
-      defHP-=dmg;
-      log(`${attacker} used ${moveName}! It dealt ${dmg} damage.`);
-      return Math.max(0,defHP);
-    }
-
-    /* ---- helpers ---- */
-    function updateHP(side,cur,max){
-      const pct=Math.floor(cur/max*100);
-      document.getElementById(side==="user"?"user-hp-bar":"opponent-hp-bar")
-              .textContent=`HP: ${cur}/${max} (${pct}%)`;
-    }
-    function log(msg){
-      const div=document.getElementById("battle-log");
-      div.innerHTML+=`<p>${msg}</p>`; div.scrollTop=div.scrollHeight;
-    }
-  </script>
-</body>
-</html>
+    const pokemonTypes = {
+      "Dialga": ["Steel", "Dragon"],
+      "Primal Kyogre": ["Water"],
+      "Mega Mewtwo Y": ["Psychic"],
+      "Arceus": ["Normal"],
+      "Primal Groudon": ["Ground", "Fire"],
+      "Mega Rayquaza": ["Dragon", "Flying"],
+      "Xerneas": ["Fairy"],
+      "Yveltal": ["Dark", "Flying"],
+      "Ultra Necrozma": ["Psychic", "Dragon"],
+      "Marshadow": ["Fighting", "Ghost"],
+      "Regigigas": ["Normal"],
+      "Mega Salamence": ["Dragon", "Flying"],
+      "Mega Gengar": ["Ghost", "Poison"],
+      "Mega Gallade": ["Psychic", "Fighting"],
+      "Mega Metagross": ["Steel", "Psychic"],
+      "Mega Blaziken": ["Fire", "Fighting"],
+      "Calyrex Shadow Rider": ["Psychic", "Ghost"],
+      "Zacian Crowned": ["Fairy", "Steel"],
