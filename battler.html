@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <h1>Pokémon Battle Engine</h1>
+  <h1>Pokécord Battler</h1>
 
   <!-- ▼ Pokémon & move selection UI ▼ -->
   <div class="selectors">
@@ -25,16 +25,16 @@
       <option value="" disabled selected>— choose —</option>
     </select>
 
-    <label for="opponent-select">Opponent:</label>
+    <label for="opponent-select">Foe's Pokémon:</label>
     <select id="opponent-select">
       <option value="" disabled selected>— random —</option>
     </select>
 
-    <label for="move-select" style="margin-left:30px;">Your Move:</label>
+    <label for="move-select" style="margin-left:30px;">Pick a Move:</label>
     <select id="move-select">
       <option value="" disabled selected>— choose mon first —</option>
     </select>
-        <button id="use-move-btn" style="display:none;">Use Move</button>
+        <button id="use-move-btn" style="display:none;">Attack!</button>
   </div>
 
   <div class="pokemon-container">
@@ -50,7 +50,7 @@
     </div>
   </div>
 
-  <button onclick="loadSelection()">Load Sprites</button>
+  <button onclick="loadSelection()">Load Pokemon</button>
   <button onclick="startBattle()">Start Battle</button>
 
   <div class="battle-log" id="battle-log"></div>
@@ -90,11 +90,33 @@
             "Palkia Origin Forme": [384, 339, 299, 399, 339, 339],
             "Lunala": [478, 325, 277, 373, 313, 293],
             "Solgaleo": [478, 373, 313, 325, 277, 293],
-            "Mega Swampert": [404, 399, 319, 289, 319, 239]
+            "Mega Swampert": [404, 399, 319, 289, 319, 239],
+            "Magearna": [364, 289, 329, 359, 329, 229],
+            "Giratina Origin Forme": [534, 339, 299, 339, 299, 279],
+            "Mega Gardevoir": [340, 269, 229, 429, 369, 299],
+            "Mega Beedrill": [334, 399, 179, 129, 259, 389],
+            "Mega Aerodactyl": [364, 369, 269, 239, 289, 399],
+            "Gholdengo": [378, 219, 289, 365, 281, 267],
+            "Darkrai": [344, 279, 279, 369, 279, 349],
+            "Walking Wake": [402, 265, 281, 349, 265, 317],
+            "Iron Leaves": [384, 359, 275, 239, 315, 307],
+            "Mega Charizard Y": [360, 307, 255, 417, 329, 299],
+            "Mega Charizard X": [360, 359, 321, 359, 269, 299],
+            "Pecharunt": [380, 275, 419, 275, 275, 275],
+            "Ogrepon-Wellspring": [364, 339, 267, 219, 291, 319],
+            "Ogrepon-Hearthflame": [364, 339, 267, 219, 291, 319],
+            "Ogrepon-Cornerstone": [364, 339, 267, 219, 291, 319],
+            "Ash-Greninja": [348, 389, 233, 405, 241, 363],
+            "Zeraora": [380, 323, 249, 303, 259, 385],
+            "Deoxys Attack Forme": [304, 459, 139, 459, 139, 399],
+            "Eternatus": [484, 269, 289, 389, 289, 359],
+            "Slaking": [504, 419, 299, 289, 229, 299],
+            "Palafin Hero Forme": [404, 419, 293, 311, 273, 299]
         };
 
         const moves = {
             "Roar of Time": { type: "Dragon", basePower: 150, accuracy: 90 },
+            "Spacial Rend": { type: "Dragon", basePower: 100, accuracy: 95 },
             "Earth Power": { type: "Ground", basePower: 90, accuracy: 100 },
             "Flash Cannon": { type: "Steel", basePower: 80, accuracy: 100 },
             "Aura Sphere": { type: "Fighting", basePower: 80, accuracy: 100 },
@@ -109,6 +131,9 @@
             "Hyper Beam": { type: "Normal", basePower: 150, accuracy: 90 },
             "Judgment": { type: "Normal", basePower: 100, accuracy: 100 },
             "Precipice Blades": { type: "Ground", basePower: 120, accuracy: 85 },
+            "Fire Punch": {type: "Fire", basePower: 75, accuracy: 100 },
+            "High Jump Kick": { type: "Fighting", basePower: 130, accuracy: 90 },
+            "Rock Slide": { type: "Rock", basePower: 75, accuracy: 90 },
             "Stone Edge": { type: "Rock", basePower: 100, accuracy: 80 },
             "Eruption": { type: "Fire", basePower: 150, accuracy: 100 },
             "Outrage": { type: "Dragon", basePower: 120, accuracy: 100 },
@@ -165,7 +190,38 @@
             "Ice Burn": { type: "Ice", basePower: 140, accuracy: 90 },
             "Moongeist Beam": { type: "Ghost", basePower: 100, accuracy: 100 },
             "Sunsteel Strike": { type: "Steel", basePower: 100, accuracy: 100 },
-            "Wave Crash": { type: "Water", basePower: 120, accuracy: 100 }
+            "Wave Crash": { type: "Water", basePower: 120, accuracy: 100 },
+            "Bolt Strike": { type: "Electric", basePower: 130, accuracy: 85 },
+            "Extrasensory": { type: "Psychic", basePower: 80, accuracy: 100 },
+            "Moonblast": { type: "Fairy", basePower: 95, accuracy: 100 },
+            "Fleur Cannon": { type: "Fairy", basePower: 130, accuracy: 90 },
+            "Synchronoise": { type: "Psychic", basePower: 120, accuracy: 100 },
+            "Shadow Force": { type: "Ghost", basePower: 120, accuracy: 100 },
+            "Dragon Claw": { type: "Dragon", basePower: 80, accuracy: 100 },
+            "Magical Leaf": { type: "Grass", basePower: 60, accuracy: 100 },
+            "Mystical Fire": { type: "Fire", basePower: 75, accuracy: 100 },
+            "Drill Run": { type: "Ground", basePower: 80, accuracy: 95 },
+            "Poison Jab": { type: "Poison", basePower: 80, accuracy: 100 },
+            "X-Scissor": { type: "Bug", basePower: 80, accuracy: 100 },
+            "Make It Rain": { type: "Steel", basePower: 120, accuracy: 100 },
+            "water Pulse": { type: "Water", basePower: 60, accuracy: 100 },
+            "Solar Blade": { type: "Grass", basePower: 125, accuracy: 100 },
+            "Psyblade": { type: "Psychic", basePower: 80, accuracy: 100 },
+            "Air Slash": { type: "Flying", basePower: 75, accuracy: 95 },
+            "Thunder Punch": { type: "Electric", basePower: 75, accuracy: 100 },
+            "Malignant Chain": { type: "Poison", basePower: 100, accuracy: 100 },
+            "Tera Blast": { type: "Normal", basePower: 80, accuracy: 100 },
+            "Poltergeist": { type: "Ghost", basePower: 110, accuracy: 90 },
+            "Wood Hammer": { type: "Grass", basePower: 120, accuracy: 100 },
+            "Superpower": { type: "Fighting", basePower: 120, accuracy: 100 },
+            "Throat Chop": { type: "Dark", basePower: 80, accuracy: 100 },
+            "Ivy Cudgel (Water)": { type: "Water", basePower: 100, accuracy: 100 },
+            "Ivy Cudgel (Fire)": { type: "Fire", basePower: 100, accuracy: 100 },
+            "Ivy Cudgel (Rock)": { type: "Rock", basePower: 100, accuracy: 100 },
+            "Plasma Fists": { type: "Electric", basePower: 100, accuracy: 100 },
+            "Psycho Boost": { type: "Psychic", basePower: 140, accuracy: 90 },
+            "Dynamax Cannon": { type: "Dragon", basePower: 100, accuracy: 100 },
+            "Focus Punch": { type: "Fighting", basePower: 150, accuracy: 100 },
         };
 
         const pokemonMoves = {
@@ -200,7 +256,28 @@
             "Palkia Origin Forme": ["Spacial Rend", "Hydro Pump", "Earth Power", "Power Gem"],
             "Lunala": ["Future Sight", "Moongeist Beam", "Focus Blast", "Moonblast"],
             "Solgaleo": ["Sunsteel Strike", "Zen Headbutt", "Giga Impact", "Crunch"],
-            "Mega Swampert": ["Earthquake", "Wave Crash", "Hammer Arm", "Stone Edge"]
+            "Mega Swampert": ["Earthquake", "Wave Crash", "Hammer Arm", "Stone Edge"],
+            "Magearna": ["Fleur Cannon", "Flash Cannon", "Aura Sphere", "Synchronoise"],
+            "Giratina Origin Forme": ["Shadow Force", "Dragon Claw", "Aura Sphere", "Earth Power"],
+            "Mega Gardevoir": ["Moonblast", "Future Sight", "Mystical Fire", "Magical Leaf"],
+            "Mega Beedrill": ["Poison Jab", "X-Scissor", "Drill Run", "Giga Impact"],
+            "Mega Aerodactyl": ["Fly", "Stone Edge", "Earthquake", "Crunch"],
+            "Gholdengo": ["Make It Rain", "Shadow Ball", "Power Gem", "Charge Beam"],
+            "Darkrai": ["Dark Pulse", "Dream Eater", "Ice Beam", "Sludge Bomb"],
+            "Walking Wake": ["Hydro Pump", "Dragon Pulse", "Flamethrower", "Water Pulse"],
+            "Iron Leaves": ["Close Combat", "Solar Blade", "Megahorn", "Psyblade"],
+            "Mega Charizard Y": ["Overheat", "Solar Beam", "Dragon Pulse", "Air Slash"],
+            "Mega Charizard X": ["Flare Blitz", "Outrage", "Earthquake", "Shadow Claw"],
+            "Pecharunt": ["Malignant Chain", "Shadow Ball", "Tera Blast", "Poltergeist"],
+            "Ogrepon-Wellspring": ["Wood Hammer", "Superpower", "Throat Chop", "Ivy Cudgel (Water)"],
+            "Ogrepon-Hearthflame": ["Wood Hammer", "Superpower", "Throat Chop", "Ivy Cudgel (Fire)"],
+            "Ogrepon-Cornerstone": ["Wood Hammer", "Superpower", "Throat Chop", "Ivy Cudgel (Rock)"],
+            "Ash-Greninja": ["Extrasensory", "Dark Pulse", "Ice Beam", "Hydro Pump"],
+            "Zeraora": ["Plasma Fists", "Close Combat", "Throat Chop", "Play Rough"],
+            "Deoxys Attack Forme": ["Hyper Beam", "Psycho Boost", "Fire Punch", "Thunder Punch"],
+            "Eternatus": ["Dynamax Cannon", "Flamethrower", "Sludge Bomb", "Hyper Beam"],
+            "Slaking": ["Giga Impact", "Focus Punch", "Throat Chop", "Play Rough"],
+            "Palafin Hero Forme": ["Wave Crash", "Focus Punch", "Ice Punch", "Iron Head"]
         };
 
 
@@ -236,7 +313,28 @@
             "Palkia Origin Forme": ["Water", "Dragon"],
             "Lunala": ["Psychic", "Ghost"],
             "Solgaleo": ["Steel", "Psychic"],
-            "Mega Swampert": ["Water", "Ground"]
+            "Mega Swampert": ["Water", "Ground"],
+            "Magearna": ["Steel", "Fairy"],
+            "Giratina Origin Forme": ["Ghost", "Dragon"],
+            "Mega Gardevoir": ["Psychic", "Fairy"],
+            "Mega Beedrill": ["Bug", "Poison"],
+            "Mega Aerodactyl": ["Rock", "Flying"],
+            "Gholdengo": ["Steel", "Ghost"],
+            "Darkrai": ["Dark"],
+            "Walking Wake": ["Water", "Dragon"],
+            "Iron Leaves": ["Grass", "Psychic"],
+            "Mega Charizard Y": ["Fire", "Flying"],
+            "Mega Charizard X": ["Fire", "Dragon"],
+            "Pecharunt": ["Poison", "Ghost"],
+            "Ogrepon-Wellspring": ["Water", "Grass"],
+            "Ogrepon-Hearthflame": ["Fire", "Grass"],
+            "Ogrepon-Cornerstone": ["Rock", "Grass"],
+            "Ash-Greninja": ["Water", "Dark"],
+            "Zeraora": ["Electric"],
+            "Deoxys Attack Forme": ["Psychic"],
+            "Eternatus": ["Poison", "Dragon"],
+            "Slaking": ["Normal"],
+            "Palafin Hero Forme": ["Water", "Fighting"]
         };
 
         const typeChart = {
@@ -292,54 +390,87 @@
             "Palkia Origin Forme": "https://img.pokemondb.net/artwork/large/palkia-origin.jpg",
             "Lunala": "https://img.pokemondb.net/artwork/large/lunala.jpg",
             "Solgaleo": "https://img.pokemondb.net/artwork/large/solgaleo.jpg",
-            "Mega Swampert": "https://img.pokemondb.net/artwork/large/swampert-mega.jpg"
+            "Mega Swampert": "https://img.pokemondb.net/artwork/large/swampert-mega.jpg",
+            "Magearna": "https://img.pokemondb.net/artwork/large/magearna.jpg",
+            "Giratina Origin Forme": "https://img.pokemondb.net/artwork/large/giratina-origin.jpg",
+            "Mega Gardevoir": "https://img.pokemondb.net/artwork/large/gardevoir-mega.jpg",
+            "Mega Beedrill": "https://img.pokemondb.net/artwork/large/beedrill-mega.jpg",
+            "Mega Aerodactyl": "https://img.pokemondb.net/artwork/large/aerodactyl-mega.jpg",
+            "Gholdengo": "https://img.pokemondb.net/artwork/large/gholdengo.jpg",
+            "Darkrai": "https://img.pokemondb.net/artwork/large/darkrai.jpg",
+            "Walking Wake": "https://img.pokemondb.net/artwork/large/walking-wake.jpg",
+            "Iron Leaves": "https://img.pokemondb.net/artwork/large/iron-leaves.jpg",
+            "Mega Charizard Y": "https://img.pokemondb.net/artwork/large/charizard-mega-y.jpg",
+            "Mega Charizard X": "https://img.pokemondb.net/artwork/large/charizard-mega-x.jpg",
+            "Pecharunt": "https://img.pokemondb.net/artwork/large/pecharunt.jpg",
+            "Ogrepon-Wellspring": "https://img.pokemondb.net/sprites/scarlet-violet/normal/ogerpon-wellspring.png",
+            "Ogrepon-Hearthflame": "https://img.pokemondb.net/sprites/scarlet-violet/normal/ogerpon-hearthflame.png",
+            "Ogrepon-Cornerstone": "https://img.pokemondb.net/sprites/scarlet-violet/normal/ogerpon-cornerstone.png",
+            "Ash-Greninja": "https://img.pokemondb.net/artwork/large/greninja-ash.jpg",
+            "Zeraora": "https://img.pokemondb.net/artwork/large/zeraora.jpg",
+            "Deoxys Attack Forme": "https://img.pokemondb.net/artwork/large/deoxys-attack.jpg",
+            "Eternatus": "https://img.pokemondb.net/artwork/large/eternatus.jpg",
+            "Slaking": "https://img.pokemondb.net/artwork/large/slaking.jpg",
+            "Palafin Hero Forme": "https://img.pokemondb.net/artwork/large/palafin-hero.jpg"
         };
+
 
 const pokemonList = Object.keys(pokemonStats);
 
 /* ----------  DOM helpers  ---------- */
 const $ = id => document.getElementById(id);
-const log = m => { $("battle-log").innerHTML += `<p>${m}</p>`; $("battle-log").scrollTop = $("battle-log").scrollHeight; };
+const log = m => {
+  $("battle-log").innerHTML += `<p>${m}</p>`;
+  $("battle-log").scrollTop = $("battle-log").scrollHeight;
+};
 const updateHP = (side, cur, max) => {
   const pct = Math.floor(cur / max * 100);
   $(side === "user" ? "user-hp-bar" : "opponent-hp-bar").textContent =
     `HP: ${cur}/${max} (${pct}%)`;
 };
 
-/* ----------  set‑up dropdowns on page load  ---------- */
+/* ----------  populate dropdowns on load  ---------- */
 window.onload = () => {
   pokemonList.forEach(p => {
     ["user-select", "opponent-select"].forEach(id => {
       const o = document.createElement("option");
-      o.value = p; o.textContent = p;
+      o.value = p;
+      o.textContent = p;
       $(id).appendChild(o);
     });
   });
   $("user-select").addEventListener("change", e => populateMoveDropdown(e.target.value));
 };
 function populateMoveDropdown(mon) {
-  const sel = $("move-select"); sel.innerHTML = "";
+  const sel = $("move-select");
+  sel.innerHTML = "";
   pokemonMoves[mon].forEach(m => {
-    const o = document.createElement("option"); o.value = o.textContent = m; sel.appendChild(o);
+    const o = document.createElement("option");
+    o.value = o.textContent = m;
+    sel.appendChild(o);
   });
 }
 
 /* ----------  global battle state  ---------- */
 let userMon, foeMon, userHP, foeHP, userSpd, foeSpd;
 
-/* ----------  sprite / bar loading  ---------- */
+/* ----------  load sprites & initialize HP bars  ---------- */
 function loadSelection() {
   userMon = $("user-select").value;
-  foeMon  = $("opponent-select").value || pokemonList[Math.random()*pokemonList.length|0];
-  if (!userMon) { alert("Choose your Pokémon first."); return; }
+  foeMon  = $("opponent-select").value || pokemonList[Math.random() * pokemonList.length | 0];
+  if (!userMon) {
+    alert("Choose your Pokémon first.");
+    return;
+  }
 
-  ["user","opponent"].forEach(side => {
-    const mon = side==="user" ? userMon : foeMon;
+  ["user", "opponent"].forEach(side => {
+    const mon = side === "user" ? userMon : foeMon;
     $(`${side}-pokemon-name`).textContent = mon;
     $(`${side}-pokemon-image`).src = pokemonImages[mon];
     $(`${side}-pokemon-image`).style.display = "block";
   });
 
+  // initialize HP to full
   userHP = pokemonStats[userMon][0];
   foeHP  = pokemonStats[foeMon ][0];
   updateHP("user", userHP, userHP);
@@ -348,78 +479,137 @@ function loadSelection() {
   populateMoveDropdown(userMon);
 }
 
-/* ----------  start battle  ---------- */
+/* ----------  start a fresh battle (reset HP, disable selectors)  ---------- */
 function startBattle() {
-  if (!userMon || !foeMon) { alert("Click ‘Load Sprites’ first."); return; }
-  if (!$("move-select").value) { alert("Choose your move."); return; }
+  if (!userMon || !foeMon) {
+    alert("Click ‘Load Sprites’ first.");
+    return;
+  }
+  const chosenMove = $("move-select").value;
+  if (!chosenMove) {
+    alert("Choose your move.");
+    return;
+  }
 
+  // reset battle log
   $("battle-log").innerHTML = "";
-  userSpd = pokemonStats[userMon][5];
-  foeSpd  = pokemonStats[foeMon ][5];
 
-  $("user-select").disabled = $("opponent-select").disabled = true;
-  turnLoop();                    // jump into first round
+  // reset HP to full from stats
+  userHP = pokemonStats[userMon][0];
+  foeHP  = pokemonStats[foeMon][0];
+  updateHP("user", userHP, userHP);
+  updateHP("opponent", foeHP, foeHP);
+
+  // recompute speeds
+  userSpd = pokemonStats[userMon][5];
+  foeSpd  = pokemonStats[foeMon][5];
+
+  // disable dropdowns during battle
+  $("user-select").disabled     = true;
+  $("opponent-select").disabled = true;
+
+  turnLoop(); // begin round-by-round loop
 }
 
-/* ----------  round‑by‑round loop (async via buttons) ---------- */
+/* ----------  round-by-round loop (user picks then AI picks)  ---------- */
 function turnLoop() {
-  // decide who leads this round
-  let userLeads = userSpd === foeSpd ? Math.random() < 0.5 : userSpd > foeSpd;
+  // decide who leads this round (faster always, or 50/50 if tie)
+  const userLeads = (userSpd === foeSpd)
+    ? (Math.random() < 0.5)
+    : (userSpd > foeSpd);
 
-  // show “Use Move” button & enable dropdown BEFORE user’s action
-  $("move-select").disabled = false;
+  // enable user move UI
+  $("move-select").disabled      = false;
   $("use-move-btn").style.display = "inline-block";
 
   $("use-move-btn").onclick = () => {
-    $("move-select").disabled = true;
+    $("move-select").disabled      = true;
     $("use-move-btn").style.display = "none";
 
     const userMove = $("move-select").value;
 
-    // attacker 1
     if (userLeads) {
+      // 1) User attacks first
       foeHP = doAttack(userMon, foeMon, foeHP, userMove);
       updateHP("opponent", foeHP, pokemonStats[foeMon][0]);
-      if (foeHP <= 0) { log(`${foeMon} fainted! You win!`); return; }
+      if (foeHP <= 0) {
+        log(`${foeMon} fainted! You win!`);
+        endBattle();
+        return;
+      }
 
+      // 2) Foe picks best move, then attacks
       const foeMove = chooseBestMove(foeMon, userMon);
       userHP = doAttack(foeMon, userMon, userHP, foeMove);
       updateHP("user", userHP, pokemonStats[userMon][0]);
-      if (userHP <= 0) { log(`${userMon} fainted! Opponent wins.`); return; }
+      if (userHP <= 0) {
+        log(`${userMon} fainted! Opponent wins.`);
+        endBattle();
+        return;
+      }
 
     } else {
+      // 1) Foe attacks first
       const foeMove = chooseBestMove(foeMon, userMon);
       userHP = doAttack(foeMon, userMon, userHP, foeMove);
       updateHP("user", userHP, pokemonStats[userMon][0]);
-      if (userHP <= 0) { log(`${userMon} fainted! Opponent wins.`); return; }
+      if (userHP <= 0) {
+        log(`${userMon} fainted! Opponent wins.`);
+        endBattle();
+        return;
+      }
 
+      // 2) User attacks
       foeHP = doAttack(userMon, foeMon, foeHP, userMove);
       updateHP("opponent", foeHP, pokemonStats[foeMon][0]);
-      if (foeHP <= 0) { log(`${foeMon} fainted! You win!`); return; }
+      if (foeHP <= 0) {
+        log(`${foeMon} fainted! You win!`);
+        endBattle();
+        return;
+      }
     }
 
-    // next round
-    setTimeout(turnLoop, 400);
+    // if nobody fainted, schedule next round
+    setTimeout(turnLoop, 300);
   };
 }
 
-/* ----------  AI: pick move with highest Expected Damage ---------- */
+/* ----------  when a battle ends, re-enable Pokémon picks  ---------- */
+function endBattle() {
+  // re-enable dropdowns so user can pick new Pokémon or rematch
+  $("user-select").disabled     = false;
+  $("opponent-select").disabled = false;
+
+  // hide “Use Move” in case they want to loadSelection again
+  $("use-move-btn").style.display = "none";
+}
+
+/* ----------  AI: pick move with highest (avg damage × accuracy)  ---------- */
 function chooseBestMove(attacker, defender) {
   let best = null, bestVal = -1;
   pokemonMoves[attacker].forEach(mvName => {
-    const val = expectedDamage(attacker, defender, mvName) * (moves[mvName].accuracy / 100);
-    if (val > bestVal) { bestVal = val; best = mvName; }
+    const avg = expectedDamage(attacker, defender, mvName);
+    const val = avg * (moves[mvName].accuracy / 100);
+    if (val > bestVal) {
+      bestVal = val;
+      best = mvName;
+    }
   });
   return best;
 }
 
-/* ----------  damage helpers ---------- */
+/* ----------  damage helpers  ---------- */
 const physicalMoves = new Set([
-  "Body Slam","Hyper Beam","Roar of Time","Earthquake","Stone Edge","Ice Punch",
-  "Hammer Arm","Close Combat","Crunch","Play Rough","Giga Impact","Outrage",
-  "Extreme Speed","Dragon Rush","Brave Bird","Sky Attack","Aeroblast","Sacred Fire",
-  "Iron Head","Zen Headbutt","Knock Off","Behemoth Bash","Behemoth Blade",
-  "Dragon Ascent","Wild Charge","Fusion Bolt","Dragon Pulse"
+   "Body Slam","Precipice Blades","Stone Edge","Outrage","Extreme Speed","Crunch",
+  "Dragon Ascent","Play Rough","Close Combat","Giga Impact","Megahorn","Sky Attack",
+  "Dragon Rush","Foul Play","Night Slash","Spectral Thief","Ice Punch","Hammer Arm",
+  "Zen Headbutt","Knock Off","Fly","Psycho Cut","Leaf Blade","Meteor Mash",
+  "Earthquake","Flare Blitz","High Jump Kick","Brave Bird","Shadow Claw","Behemoth Blade",
+  "Behemoth Bash","Wild Charge","Sacred Fire","Iron Head","Fusion Bolt","Freeze Shock",
+  "Sunsteel Strike","Wave Crash","Shadow Force","Dragon Claw","Drill Run","Poison Jab",
+  "X-Scissor","Solar Blade","Psyblade","Thunder Punch","Poltergeist","Wood Hammer",
+  "Superpower","Throat Chop","Ivy Cudgel (Water)","Ivy Cudgel (Fire)","Ivy Cudgel (Rock)",
+  "Plasma Fists","Focus Punch"
 ]);
 
 function expectedDamage(attacker, defender, mvName) {
@@ -432,7 +622,7 @@ function expectedDamage(attacker, defender, mvName) {
     : pokemonStats[defender][4];
   const stab = pokemonTypes[attacker].includes(mv.type) ? 1.5 : 1;
 
-
+  // correct type-effectiveness lookup (preserves 0)
   const row = typeChart[mv.type] || {};
   const eff = pokemonTypes[defender].reduce((m, t) => {
     const val = row[t] !== undefined ? row[t] : 1;
@@ -448,14 +638,18 @@ function expectedDamage(attacker, defender, mvName) {
 
 function doAttack(attacker, defender, defHP, mvName) {
   const mv = moves[mvName];
-  if (Math.random()*100 > mv.accuracy) { log(`${attacker}ʼs ${mvName} missed!`); return defHP; }
+  if (Math.random() * 100 > mv.accuracy) {
+    log(`${attacker}ʼs ${mvName} missed!`);
+    return defHP;
+  }
 
   const base = expectedDamage(attacker, defender, mvName);
-  const rand = Math.random()*0.15+0.85;
+  const rand = Math.random() * 0.15 + 0.85;
   let dmg = Math.floor(base * rand);
-  if (dmg < 1 && base > 0) dmg = 1;     // at least 1 if not immune
+  if (base > 0 && dmg < 1) dmg = 1; // at least 1 if not immune
+
   defHP -= dmg;
-  log(`${attacker} used ${mvName}! It dealt ${dmg} damage.`);
+  log(`${attacker} used ${mvName}! It dealt ${dmg} damage.`);
   return Math.max(0, defHP);
 }
 </script>
