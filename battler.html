@@ -84,7 +84,7 @@
             "Lugia": [416, 279, 359, 279, 407, 319],
             "Reshiram": [404, 339, 299, 399, 339, 279],
             "Zekrom": [404, 399, 339, 339, 299, 279],
-            "Zygarde": [420, 299, 341, 261, 289, 289],
+            "Zygarde Complete": [636, 299, 341, 281, 289, 269],
             "Kyurem White": [454, 339, 279, 439, 299, 289],
             "Kyurem Black": [454, 439, 299, 339, 279, 289],
             "Palkia Origin Forme": [384, 339, 299, 399, 339, 339],
@@ -111,7 +111,14 @@
             "Deoxys Attack Forme": [304, 459, 139, 459, 139, 399],
             "Eternatus": [484, 269, 289, 389, 289, 359],
             "Slaking": [504, 419, 299, 289, 229, 299],
-            "Palafin Hero Forme": [404, 419, 293, 311, 273, 299]
+            "Palafin Hero Forme": [404, 419, 293, 311, 273, 299],
+            "Kestridis": [404, 419, 315, 199, 315, 387],
+            "Papyrough": [364, 409, 259, 199, 259, 409],
+            "Mega Zapdos": [384, 289, 289, 449, 319, 329],
+            "Mothera": [458, 259, 281, 433, 449, 179],
+            "Mega Latios": [364, 359, 299, 419, 339, 319],
+            "Mega Diancie": [304, 419, 319, 419, 319, 319],
+            "Mega Crobat": [374, 379, 299, 219, 299, 399],
         };
 
         const moves = {
@@ -175,7 +182,7 @@
             "Behemoth Blade": { type: "Steel", basePower: 100, accuracy: 100 },
             "Behemoth Bash": { type: "Steel", basePower: 100, accuracy: 100 },
             "Wild Charge": { type: "Electric", basePower: 90, accuracy: 100 },
-            "Dragon Pulse": { type: "Dragon", basePower: 85, accuracy: 100 },
+            "Draco Meteor": { type: "Dragon", basePower: 130, accuracy: 90 },
             "Electro Drift": { type: "Electric", basePower: 100, accuracy: 100 },
             "Overheat": { type: "Fire", basePower: 130, accuracy: 90 },
             "Sacred Fire": { type: "Fire", basePower: 100, accuracy: 95 },
@@ -204,7 +211,7 @@
             "Poison Jab": { type: "Poison", basePower: 80, accuracy: 100 },
             "X-Scissor": { type: "Bug", basePower: 80, accuracy: 100 },
             "Make It Rain": { type: "Steel", basePower: 120, accuracy: 100 },
-            "water Pulse": { type: "Water", basePower: 60, accuracy: 100 },
+            "Water Pulse": { type: "Water", basePower: 60, accuracy: 100 },
             "Solar Blade": { type: "Grass", basePower: 125, accuracy: 100 },
             "Psyblade": { type: "Psychic", basePower: 80, accuracy: 100 },
             "Air Slash": { type: "Flying", basePower: 75, accuracy: 95 },
@@ -222,6 +229,15 @@
             "Psycho Boost": { type: "Psychic", basePower: 140, accuracy: 90 },
             "Dynamax Cannon": { type: "Dragon", basePower: 100, accuracy: 100 },
             "Focus Punch": { type: "Fighting", basePower: 150, accuracy: 100 },
+            "Bitter Blade": { type: "Fire", basePower: 90, accuracy: 100 },
+            "Thunderbolt": { type: "Electric", basePower: 90, accuracy: 100 },
+            "Hurricane": { type: "Flying", basePower: 110, accuracy: 70 },
+            "Heat Wave": { type: "Fire", basePower: 95, accuracy: 90 },
+            "Lovely Wind": { type: "Flying", basePower: 100, accuracy: 100 },
+            "Bug Buzz": { type: "Bug", basePower: 90, accuracy: 100 },
+            "Diamond Storm": { type: "Rock", basePower: 100, accuracy: 95 },
+            "Psyshock": { type: "Psychic", basePower: 80, accuracy: 100 },
+            "Gunk Shot": { type: "Poison", basePower: 120, accuracy: 80 },
         };
 
         const pokemonMoves = {
@@ -244,14 +260,14 @@
             "Calyrex Shadow Rider": ["Astral Barrage", "Solar Beam", "Future Sight", "Snarl"],
             "Zacian Crowned": ["Play Rough", "Behemoth Blade", "Giga Impact", "Zen Headbutt"],
             "Zamazenta Crowned": ["Close Combat", "Behemoth Bash", "Wild Charge", "Crunch"],
-            "Miraidon": ["Dragon Pulse", "Electro Drift", "Overheat", "Hyper Beam"],
+            "Miraidon": ["Draco Meteor", "Electro Drift", "Overheat", "Hyper Beam"],
             "Koraidon": ["Close Combat", "Outrage", "Flare Blitz", "Giga Impact"],
             "Ho-Oh": ["Sky Attack", "Sacred Fire", "Iron Head", "Zen Headbutt"],
             "Lugia": ["Aeroblast", "Thunder", "Hydro Pump", "Future Sight"],
-            "Reshiram": ["Blue Flare", "Dragon Pulse", "Earth Power", "Extrasensory"],
+            "Reshiram": ["Blue Flare", "Draco Meteor", "Earth Power", "Extrasensory"],
             "Zekrom": ["Bolt Strike", "Outrage", "Crunch", "Rock Slide"],
-            "Zygarde": ["Earthquake", "Outrage", "Crunch", "Stone Edge"],
-            "Kyurem White": ["Ice Burn", "Fusion Flare", "Dragon Pulse", "Psychic"],
+            "Zygarde Complete": ["Earthquake", "Outrage", "Crunch", "Stone Edge"],
+            "Kyurem White": ["Ice Burn", "Fusion Flare", "Draco Meteor", "Psychic"],
             "Kyurem Black": ["Outrage", "Freeze Shock", "Fusion Bolt", "Shadow Claw"],
             "Palkia Origin Forme": ["Spacial Rend", "Hydro Pump", "Earth Power", "Power Gem"],
             "Lunala": ["Future Sight", "Moongeist Beam", "Focus Blast", "Moonblast"],
@@ -264,9 +280,9 @@
             "Mega Aerodactyl": ["Fly", "Stone Edge", "Earthquake", "Crunch"],
             "Gholdengo": ["Make It Rain", "Shadow Ball", "Power Gem", "Charge Beam"],
             "Darkrai": ["Dark Pulse", "Dream Eater", "Ice Beam", "Sludge Bomb"],
-            "Walking Wake": ["Hydro Pump", "Dragon Pulse", "Flamethrower", "Water Pulse"],
+            "Walking Wake": ["Hydro Pump", "Draco Meteor", "Flamethrower", "Water Pulse"],
             "Iron Leaves": ["Close Combat", "Solar Blade", "Megahorn", "Psyblade"],
-            "Mega Charizard Y": ["Overheat", "Solar Beam", "Dragon Pulse", "Air Slash"],
+            "Mega Charizard Y": ["Overheat", "Solar Beam", "Draco Meteor", "Air Slash"],
             "Mega Charizard X": ["Flare Blitz", "Outrage", "Earthquake", "Shadow Claw"],
             "Pecharunt": ["Malignant Chain", "Shadow Ball", "Tera Blast", "Poltergeist"],
             "Ogrepon-Wellspring": ["Wood Hammer", "Superpower", "Throat Chop", "Ivy Cudgel (Water)"],
@@ -277,7 +293,14 @@
             "Deoxys Attack Forme": ["Hyper Beam", "Psycho Boost", "Fire Punch", "Thunder Punch"],
             "Eternatus": ["Dynamax Cannon", "Flamethrower", "Sludge Bomb", "Hyper Beam"],
             "Slaking": ["Giga Impact", "Focus Punch", "Throat Chop", "Play Rough"],
-            "Palafin Hero Forme": ["Wave Crash", "Focus Punch", "Ice Punch", "Iron Head"]
+            "Palafin Hero Forme": ["Wave Crash", "Focus Punch", "Ice Punch", "Iron Head"],
+            "Kestridis": ["Wood Hammer", "Earthquake", "Stone Edge", "Close Combat"],
+            "Papyrough": ["Solar Blade", "Close Combat", "Night Slash", "Bitter Blade"],
+            "Mega Zapdos": ["Thunderbolt", "Hurricane", "Focus Blast", "Heat Wave"],
+            "Mothera": ["Lovely Wind", "Psychic", "Moonblast", "Bug Buzz"],
+            "Mega Latios": ["Psychic", "Draco Meteor", "Thunderbolt", "Ice Beam"],
+            "Mega Diancie": ["Diamond Storm", "Moonblast", "Earth Power", "Psyshock"],
+            "Mega Crobat": ["Brave Bird", "Gunk Shot", "X-Scissor", "Zen Headbutt"],
         };
 
 
@@ -307,7 +330,7 @@
             "Lugia": ["Psychic", "Flying"],
             "Reshiram": ["Dragon", "Fire"],
             "Zekrom": ["Dragon", "Electric"],
-            "Zygarde": ["Dragon", "Ground"],
+            "Zygarde Complete": ["Dragon", "Ground"],
             "Kyurem White": ["Dragon", "Ice"],
             "Kyurem Black": ["Dragon", "Ice"],
             "Palkia Origin Forme": ["Water", "Dragon"],
@@ -334,7 +357,14 @@
             "Deoxys Attack Forme": ["Psychic"],
             "Eternatus": ["Poison", "Dragon"],
             "Slaking": ["Normal"],
-            "Palafin Hero Forme": ["Water", "Fighting"]
+            "Palafin Hero Forme": ["Water"],
+            "Kestridis": ["Grass", "Ground"],
+            "Papyrough": ["Grass", "Fighting"],
+            "Mega Zapdos": ["Electric", "Flying"],
+            "Mothera": ["Fairy", "Flying"],
+            "Mega Latios": ["Dragon", "Psychic"],
+            "Mega Diancie": ["Rock", "Fairy"],
+            "Mega Crobat": ["Poison", "Flying"],
         };
 
         const typeChart = {
@@ -384,7 +414,7 @@
             "Lugia": "https://img.pokemondb.net/artwork/large/lugia.jpg",
             "Reshiram": "https://img.pokemondb.net/artwork/large/reshiram.jpg",
             "Zekrom": "https://img.pokemondb.net/artwork/large/zekrom.jpg",
-            "Zygarde": "https://img.pokemondb.net/artwork/large/zygarde.jpg",
+            "Zygarde Complete": "https://archives.bulbagarden.net/media/upload/f/fb/0718Zygarde-Complete.png",
             "Kyurem White": "https://img.pokemondb.net/artwork/large/kyurem-white.jpg",
             "Kyurem Black": "https://img.pokemondb.net/artwork/large/kyurem-black.jpg",
             "Palkia Origin Forme": "https://img.pokemondb.net/artwork/large/palkia-origin.jpg",
@@ -411,7 +441,14 @@
             "Deoxys Attack Forme": "https://img.pokemondb.net/artwork/large/deoxys-attack.jpg",
             "Eternatus": "https://img.pokemondb.net/artwork/large/eternatus.jpg",
             "Slaking": "https://img.pokemondb.net/artwork/large/slaking.jpg",
-            "Palafin Hero Forme": "https://img.pokemondb.net/artwork/large/palafin-hero.jpg"
+            "Palafin Hero Forme": "https://img.pokemondb.net/artwork/large/palafin-hero.jpg",
+            "Kestridis": "https://static.wikia.nocookie.net/darkandwindiefakemon/images/6/6a/Kestridis.png/revision/latest?cb=20170803041936",
+            "Papyrough": "https://static.wikia.nocookie.net/darkandwindiefakemon/images/9/9e/Papyrough.png/revision/latest?cb=20240711011002",
+            "Mega Zapdos": "https://i.pinimg.com/736x/0c/61/f0/0c61f065fd6948daa3695a4717f0bb50.jpg",
+            "Mothera": "https://static1.srcdn.com/wordpress/wp-content/uploads/2021/08/Pok--mon-Fakemon-Silvyx-1.jpg?q=50&fit=crop&w=825&dpr=1.5",
+            "Mega Latios": "https://img.pokemondb.net/artwork/large/latios-mega.jpg",
+            "Mega Diancie": "https://img.pokemondb.net/artwork/large/diancie-mega.jpg",
+            "Mega Crobat": "https://static.pokemonpets.com/images/monsters-images-300-300/8169-Mega-Crobat.webp",
         };
 
 
@@ -609,7 +646,7 @@ const physicalMoves = new Set([
   "Sunsteel Strike","Wave Crash","Shadow Force","Dragon Claw","Drill Run","Poison Jab",
   "X-Scissor","Solar Blade","Psyblade","Thunder Punch","Poltergeist","Wood Hammer",
   "Superpower","Throat Chop","Ivy Cudgel (Water)","Ivy Cudgel (Fire)","Ivy Cudgel (Rock)",
-  "Plasma Fists","Focus Punch"
+  "Plasma Fists","Focus Punch", "Bitter Blade"
 ]);
 
 function expectedDamage(attacker, defender, mvName) {
